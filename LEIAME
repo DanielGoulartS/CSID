@@ -1,0 +1,6 @@
+Comece os Diagramas de Sequencia por favor, Caio. 
+Até o momento infelizmente o único módulo operante é o de Cadastro de Usuário/Login. 
+O arquivo raiz que inicia o programa é o CSID.CSID.java (Pacote CSID, arquivo CSID.java).
+A partir dali as funcionalidades estão todas no pacote Cadastro, assim como nos diagramas de Caso de Uso, e assim deve ficar nos demais.
+Exceção para o pacote Model que possui a classe de conexão, acho que talvez entre no diagrama, e já está operando bem também.
+Qualquer arquivo chamado fora dalí pode mencionar, mas ainda não tá 100% concluído.
