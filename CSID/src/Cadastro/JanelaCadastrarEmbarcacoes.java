@@ -15,29 +15,27 @@ import javax.swing.JTextField;
  *
  * @author Daniel
  */
-public class JanelaCadastrarPortos implements Janela {
+public class JanelaCadastrarEmbarcacoes implements Janela {
 
     public Usuario usuario;
-    public Porto porto;
+    public Embarcacao embarcacao;
     public Connection conexao;
 
     public JFrame janela;
     public JPanel painel, painelEsqForm, painelEsqBotoes, painelLista;
     public JScrollPane scrollPanel;
-    public JLabel lbId, lbNome, lbEndereco, lbTelefone, lbEmail;
-    public JTextField tfId, tfNome, tfEndereco, tfTelefone, tfEmail;
+    public JLabel lbId, lbNome, lbNumero;
+    public JTextField tfId, tfNome, tfNumero;
     public JButton btCadastrar, btExcluir;
 
-    public JanelaCadastrarPortos(Usuario usuario) {
-        //Constrrução do Usuário
+    public JanelaCadastrarEmbarcacoes(Usuario usuario) {
+
+        //Iniciação de variáveis necessárias
+        this.conexao = new Connection();
         this.usuario = usuario;
 
-        //Construção da Conexão
-        conexao = new Connection();
-
-        //Formatação da Interface
-        janela = new JFrame();
-        janela.setTitle("Cadastrar Porto");
+        //Iniciação da Interface Gráfica
+        janela = new JFrame("Cadastrar Embarcações");
         janela.setBounds(new Rectangle(720, 500));
         janela.setLocationRelativeTo(null);
         janela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -52,24 +50,18 @@ public class JanelaCadastrarPortos implements Janela {
 
         lbId = new JLabel("Id: ");
         lbNome = new JLabel("Nome: ");
-        lbEndereco = new JLabel("Endereço: ");
-        lbTelefone = new JLabel("Telefone: ");
-        lbEmail = new JLabel("E-mail: ");
+        lbNumero = new JLabel("Número: ");
 
         tfId = new JTextField();
-        tfTelefone = new JTextField();
         tfNome = new JTextField();
-        tfEndereco = new JTextField();
-        tfEmail = new JTextField();
+        tfNumero = new JTextField();
 
     }
 
     public void limparFormulario() {
         tfId.setText("");
         tfNome.setText("");
-        tfEndereco.setText("");
-        tfTelefone.setText("");
-        tfEmail.setText("");
+        tfNumero.setText("");
     }
 
     @Override
@@ -79,18 +71,12 @@ public class JanelaCadastrarPortos implements Janela {
         painelEsqForm.add(tfId);
         painelEsqForm.add(lbNome);
         painelEsqForm.add(tfNome);
-        painelEsqForm.add(lbEndereco);
-        painelEsqForm.add(tfEndereco);
-        painelEsqForm.add(lbTelefone);
-        painelEsqForm.add(tfTelefone);
-        painelEsqForm.add(lbEmail);
-        painelEsqForm.add(tfEmail);
+        painelEsqForm.add(lbNumero);
+        painelEsqForm.add(tfNumero);
 
-        tfId.addKeyListener(usuario.pesquisaDinamicaPortos(this));
-        tfNome.addKeyListener(usuario.pesquisaDinamicaPortos(this));
-        tfEndereco.addKeyListener(usuario.pesquisaDinamicaPortos(this));
-        tfTelefone.addKeyListener(usuario.pesquisaDinamicaPortos(this));
-        tfEmail.addKeyListener(usuario.pesquisaDinamicaPortos(this));
+        tfId.addKeyListener(usuario.pesquisaDinamicaEmbarcacoes(this));
+        tfNome.addKeyListener(usuario.pesquisaDinamicaEmbarcacoes(this));
+        tfNumero.addKeyListener(usuario.pesquisaDinamicaEmbarcacoes(this));
 
         scrollPanel.setViewportView(painelLista);
 
@@ -101,7 +87,6 @@ public class JanelaCadastrarPortos implements Janela {
 
         janela.setVisible(true);
         return true;
-
     }
 
     @Override
@@ -118,15 +103,13 @@ public class JanelaCadastrarPortos implements Janela {
         btCadastrar = new JButton("Cadastrar");
         btExcluir = new JButton("Excluir");
 
-        
         painelEsqBotoes.add(btCadastrar);
         painelEsqBotoes.add(btExcluir);
 
-        btCadastrar.addActionListener(Administrador.cadastrarPortos(this));
-        btExcluir.addActionListener(Administrador.excluirPortos(this));
+        btCadastrar.addActionListener(Administrador.cadastrarEmbarcacoes(this));
+        btExcluir.addActionListener(Administrador.excluirEmbarcacoes(this));
 
         exibirInterfaceTecnico();
         return true;
     }
-
 }

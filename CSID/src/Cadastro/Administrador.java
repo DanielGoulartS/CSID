@@ -17,7 +17,7 @@ import javax.swing.JTextField;
  */
 public class Administrador extends Usuario {
 
-    static ActionListener cadastrarPorto(JanelaCadastrarPortos jCP) {
+    static ActionListener cadastrarPortos(JanelaCadastrarPortos jCP) {
         return (ActionEvent e) -> {
             jCP.conexao.conectar();
             //Monta o objeto para cadastrar
@@ -43,7 +43,7 @@ public class Administrador extends Usuario {
         };
     }
 
-    static ActionListener excluirPorto(JanelaCadastrarPortos jCP) {
+    static ActionListener excluirPortos(JanelaCadastrarPortos jCP) {
         return (ActionEvent e) -> {
             jCP.conexao.conectar();
 
@@ -76,13 +76,69 @@ public class Administrador extends Usuario {
         };
     }
 
+    static ActionListener cadastrarEmbarcacoes(JanelaCadastrarEmbarcacoes jCE) {
+        return (ActionEvent e) -> {
+            jCE.conexao.conectar();
+
+            //Monta o objeto para cadastrar
+            jCE.embarcacao = new Embarcacao(jCE.tfId.getText(), jCE.tfNome.getText(), jCE.tfNumero.getText());
+
+            //Busca-o na base de dados
+            ResultSet rs = jCE.embarcacao.select(jCE.conexao, jCE.embarcacao);
+            try {
+
+                if (rs.next()) {
+                    //Se encontra-lo não cadastra, e avisa
+                    JOptionPane.showMessageDialog(jCE.janela, "Já consta uma embarcação com mesmo nome."
+                            + " \nConfira, ou tente outro nome.");
+                } else {
+                    //Se não encontra-lo cadastra-o
+                    JOptionPane.showMessageDialog(jCE.janela, "O id será escolhido pelo Sistema.");
+                    jCE.embarcacao.insert(jCE.conexao, jCE.embarcacao);
+                }
+            } catch (SQLException ex) {
+                System.err.println("\n\n1-Exceção em Cadastro.Administrador.cadastrarEmbarcacoes()\n\n.");
+            }
+            jCE.conexao.desconectar();
+        };
+    }
+
+    static ActionListener excluirEmbarcacoes(JanelaCadastrarEmbarcacoes jCE) {
+        return (ActionEvent e) -> {
+            jCE.conexao.conectar();
+
+            //Monta o objeto para excluir
+            jCE.embarcacao = new Embarcacao(jCE.tfId.getText(), jCE.tfNome.getText(), jCE.tfNumero.getText());
+
+            //Busca-o na base de dados
+            ResultSet rs = jCE.embarcacao.select(jCE.conexao, jCE.embarcacao);
+            try {
+
+                if (rs.next()) {
+                    //Se for primeiro e ultimo resultado (evita exclusão em massa)
+                    if (rs.isLast()) {
+                        //Ao encontra-lo excluirá
+                        JOptionPane.showMessageDialog(jCE.janela, "Embarcação Excluída.");
+                        jCE.embarcacao.delete(jCE.conexao, jCE.embarcacao);
+                        jCE.limparFormulario();
+                    } else {
+                        JOptionPane.showMessageDialog(jCE.janela, "Confira se as informações inseridas estão idênticas.");
+                    }
+                } else {
+                    //Se não encontra-lo parará e avisará o usuário
+                    JOptionPane.showMessageDialog(jCE.janela, "Confira todas as informações da Embarcação.");
+                }
+            } catch (SQLException ex) {
+                System.err.println("\n\n1-Exceção em Cadastro.Administrador.cadastrarEmbarcacoes()\n\n.");
+            }
+            jCE.conexao.desconectar();
+        };
+    }
+
     public Administrador(int id, String nome, String sobrenome, String usuario, char[] senha, String cargo) {
         super(id, nome, sobrenome, usuario, senha, cargo);
     }
 
-    public Administrador(int id, String nome, String sobrenome, String usuario, String senha, String cargo) {
-        super(id, nome, sobrenome, usuario, senha, cargo);
-    }
 
     @Override
     public void exibir(Janela janela) {
@@ -91,7 +147,7 @@ public class Administrador extends Usuario {
     }
 
     @Override
-    public ActionListener cadastrar(JanelaCadastrarUsuario janela) {
+    public ActionListener cadastrar(JanelaCadastrarUsuarios janela) {
         return (ActionEvent e) -> {
 
             String campoSenha = String.valueOf(janela.pfSenha.getPassword());
@@ -154,7 +210,7 @@ public class Administrador extends Usuario {
     }
 
     @Override
-    public ActionListener excluir(JanelaCadastrarUsuario janela) {
+    public ActionListener excluir(JanelaCadastrarUsuarios janela) {
         return (ActionEvent e) -> {
 
             //0 = YES, 1 = NO

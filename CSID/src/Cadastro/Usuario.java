@@ -30,15 +30,6 @@ public abstract class Usuario {
         this.cargo = cargo.substring(0, 3);
     }
 
-    public Usuario(int id, String nome, String sobrenome, String usuario, String senha, String cargo) {
-        this.id = id;
-        this.nome = nome;
-        this.sobrenome = sobrenome;
-        this.usuario = usuario;
-        this.senha = senha;
-        this.cargo = cargo.substring(0, 3);
-    }
-
     public Usuario select(Connection conexao, Usuario usuario) {
 
         System.out.println(conexao.isValid());
@@ -47,11 +38,11 @@ public abstract class Usuario {
 
         System.out.println("1");
         Usuario adm = new Capitao(usuario.id, usuario.nome, usuario.sobrenome,
-                usuario.usuario, usuario.senha, usuario.cargo);
+                usuario.usuario, usuario.senha.toCharArray(), usuario.cargo);
 
         System.out.println("2");
         ResultSet rs = conexao.executeQuery("SELECT * FROM `usuarios` WHERE usuario = '" + usuario.usuario + "' "
-                + "AND senha = '" + usuario.senha + "';");
+                + "AND senha = '" + usuario.senha + "' ORDER BY `id` ASC;");
 
         System.out.println("3");
         try {
@@ -62,17 +53,17 @@ public abstract class Usuario {
                     case "Adm":
                         System.out.println("ADM");
                         adm = new Administrador(rs.getInt("id"), rs.getString("nome"), rs.getString("sobrenome"),
-                                rs.getString("usuario"), rs.getString("senha"), rs.getString("cargo"));
+                                rs.getString("usuario"), rs.getString("senha").toCharArray(), rs.getString("cargo"));
                         break;
                     case "Téc":
                         System.out.println("TEC");
                         adm = new Tecnico(rs.getInt("id"), rs.getString("nome"), rs.getString("sobrenome"),
-                                rs.getString("usuario"), rs.getString("senha"), rs.getString("cargo"));
+                                rs.getString("usuario"), rs.getString("senha").toCharArray(), rs.getString("cargo"));
                         break;
                     case "Cap":
                         System.out.println("CAP");
                         adm = new Capitao(rs.getInt("id"), rs.getString("nome"), rs.getString("sobrenome"),
-                                rs.getString("usuario"), rs.getString("senha"), rs.getString("cargo"));
+                                rs.getString("usuario"), rs.getString("senha").toCharArray(), rs.getString("cargo"));
                         break;
                 }
 
@@ -137,7 +128,6 @@ public abstract class Usuario {
         return result;
     }
 
-
     public ActionListener abrirJanela(Janela janela) {
         return (ActionEvent e) -> {
             this.exibir(janela);
@@ -146,9 +136,9 @@ public abstract class Usuario {
 
     public abstract void exibir(Janela janela);
 
-    public abstract ActionListener cadastrar(JanelaCadastrarUsuario janela);
+    public abstract ActionListener cadastrar(JanelaCadastrarUsuarios janela);
 
-    public abstract ActionListener excluir(JanelaCadastrarUsuario janela);
+    public abstract ActionListener excluir(JanelaCadastrarUsuarios janela);
 
     public ActionListener acessar(Entrar entrar) {
 
@@ -192,7 +182,7 @@ public abstract class Usuario {
         };
     }
 
-    public KeyListener pesquisaDinamica(JanelaCadastrarPortos jCP) {
+    public KeyListener pesquisaDinamicaPortos(JanelaCadastrarPortos jCP) {
         return new KeyListener() {
 
             //Faz Nada
@@ -212,7 +202,7 @@ public abstract class Usuario {
                 jCP.painelLista.removeAll();
 
                 //Monta o objeto para buscar
-                jCP.porto = new Porto(jCP.tfId.getText(), jCP.tfTelefone.getText(), 
+                jCP.porto = new Porto(jCP.tfId.getText(), jCP.tfTelefone.getText(),
                         jCP.tfNome.getText(), jCP.tfEndereco.getText(), jCP.tfEmail.getText());
 
                 //Busca-o na base de dados
@@ -227,30 +217,83 @@ public abstract class Usuario {
 
                             //Monta o cartao de cada Porto
                             JPanel cartao = new JPanel(new GridLayout(0, 1));
-                            cartao.add(new JLabel(String.valueOf(novoP.id)));
-                            cartao.add(new JLabel(novoP.nome));
-                            cartao.add(new JLabel(novoP.endereco));
-                            cartao.add(new JLabel(novoP.telefone));
-                            cartao.add(new JLabel(novoP.email));
+                            cartao.add(new JLabel("Id: " + String.valueOf(novoP.id)));
+                            cartao.add(new JLabel("Nome: " + novoP.nome));
+                            cartao.add(new JLabel("Endereço: " + novoP.endereco));
+                            cartao.add(new JLabel("Telefone: " + novoP.telefone));
+                            cartao.add(new JLabel("E-mail: " + novoP.email));
                             jCP.painelLista.add(cartao);
+                            jCP.painelLista.add(new JLabel());
                         } while (rs.next());
 
                     }
 
                 } catch (SQLException ex) {
                     System.err.println(ex);
-                    System.err.println("\n\n1-Exceção em Cadastro.Usuario.PesquisaDinamica()\n\n.");
+                    System.err.println("\n\n1-Exceção em Cadastro.Usuario.PesquisaDinamicaPortos()\n\n.");
                 }
 
-
-                jCP.painelLista.add(new JLabel());
-                jCP.painelLista.add(new JLabel());
-                jCP.painelLista.add(new JLabel());
                 jCP.painelLista.setVisible(false);
                 jCP.painelLista.setVisible(true);
 
                 //Desonecta a base de dados
                 jCP.conexao.desconectar();
+            }
+        };
+    }
+
+    public KeyListener pesquisaDinamicaEmbarcacoes(JanelaCadastrarEmbarcacoes jCE) {
+        return new KeyListener() {
+
+            //Faz Nada
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+            }
+
+            //Quando solta uma tecla, atualiza o painel com os resultados possíveis
+            @Override
+            public void keyReleased(KeyEvent e) {
+                //Conecta a base de dados
+                jCE.conexao.conectar();
+                jCE.painelLista.removeAll();
+
+                //Monta o objeto para buscar
+                jCE.embarcacao = new Embarcacao(jCE.tfId.getText(), jCE.tfNome.getText(), jCE.tfNumero.getText());
+
+                //Busca-o na base de dados
+                ResultSet rs = jCE.embarcacao.select(jCE.conexao, jCE.embarcacao);
+                try {
+
+                    if (rs.next()) {
+                        //Se encontra-los Cria um painel com eles e os adiciona a lista
+                        do {
+                            Embarcacao novaE = new Embarcacao(rs.getString("id"), rs.getString("nome"), rs.getString("numero"));
+
+                            //Monta o cartao de cada Embarcação
+                            JPanel cartao = new JPanel(new GridLayout(0, 1));
+                            cartao.add(new JLabel("Id: " + String.valueOf(novaE.id)));
+                            cartao.add(new JLabel("Nome: " + novaE.nome));
+                            cartao.add(new JLabel("Número: " + novaE.numero));
+                            jCE.painelLista.add(cartao);
+                            jCE.painelLista.add(new JLabel());
+                        } while (rs.next());
+
+                    }
+
+                } catch (SQLException ex) {
+                    System.err.println("\n\n1-Exceção em Cadastro.Usuario.PesquisaDinamicaEmbarcacoes()\n\n.");
+                    System.err.println(ex);
+                }
+
+                jCE.painelLista.setVisible(false);
+                jCE.painelLista.setVisible(true);
+
+                //Desonecta a base de dados
+                jCE.conexao.desconectar();
             }
         };
     }

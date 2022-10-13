@@ -35,7 +35,12 @@ public class Porto {
         conexao.conectar();
         boolean result = false;
 
-        if (conexao.execute("DELETE FROM `portos` WHERE `nome` = '" + porto.nome + "';")) {
+        if (conexao.execute("DELETE FROM portos WHERE "
+                + "`id` LIKE '%" + porto.id 
+                + "%' AND `nome` LIKE '%" + porto.nome
+                + "%' AND `endereco` LIKE '%" + porto.endereco
+                + "%' AND `telefone` LIKE '%" + porto.telefone
+                + "%' AND `email` LIKE '%" + porto.email + "%';")) {
             result = true;
         }
 
@@ -52,7 +57,7 @@ public class Porto {
                 + "%' AND `nome` LIKE '%" + porto.nome
                 + "%' AND `endereco` LIKE '%" + porto.endereco
                 + "%' AND `telefone` LIKE '%" + porto.telefone
-                + "%' AND `email` LIKE '%" + porto.email + "%';");
+                + "%' AND `email` LIKE '%" + porto.email + "%' ORDER BY `id` ASC;");
 
         return rs;
     }

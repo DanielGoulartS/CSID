@@ -37,7 +37,7 @@ public final class Entrar implements Janela {
 
     public Entrar() {
         //Construção do Usuario
-        usuario = new Administrador(0, "", "", "", "", "000");
+        usuario = new Administrador(0, "", "", "", "".toCharArray(), "000");
 
         //Construção da Conexão
         conexao = new Connection();
@@ -82,7 +82,7 @@ public final class Entrar implements Janela {
 
     public ActionListener abrirJanelaCadastrarUsuario() {
         return (ActionEvent e) -> {
-            new JanelaCadastrarUsuario(usuario).exibirInterfaceExterna();
+            new JanelaCadastrarUsuarios(usuario).exibirInterfaceExterna();
         };
     }
 
