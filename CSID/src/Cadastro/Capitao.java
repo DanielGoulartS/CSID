@@ -21,12 +21,5 @@ public class Capitao extends Usuario{
     public ActionListener cadastrar(JanelaCadastrarUsuarios janela) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
-    @Override
-    public ActionListener excluir(JanelaCadastrarUsuarios janela) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
-    
     
 }

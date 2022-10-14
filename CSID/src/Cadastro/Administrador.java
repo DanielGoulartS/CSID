@@ -17,6 +17,12 @@ import javax.swing.JTextField;
  */
 public class Administrador extends Usuario {
 
+    public Administrador(int id, String nome, String sobrenome, String usuario, char[] senha, String cargo) {
+        super(id, nome, sobrenome, usuario, senha, cargo);
+    }
+
+    
+    
     static ActionListener cadastrarPortos(JanelaCadastrarPortos jCP) {
         return (ActionEvent e) -> {
             jCP.conexao.conectar();
@@ -135,11 +141,128 @@ public class Administrador extends Usuario {
         };
     }
 
-    public Administrador(int id, String nome, String sobrenome, String usuario, char[] senha, String cargo) {
-        super(id, nome, sobrenome, usuario, senha, cargo);
+    static ActionListener cadastrarServicos(JanelaCadastrarServicos jCS) {
+        return (ActionEvent e) -> {
+            jCS.conexao.conectar();
+
+            //Monta o objeto para cadastrar
+            jCS.servico = new Servico("", jCS.tfNome.getText(), jCS.tfDescricao.getText());
+
+            //Busca-o na base de dados
+            ResultSet rs = jCS.servico.select(jCS.conexao, jCS.servico);
+            try {
+
+                if (rs.next()) {
+                    //Se encontra-lo não cadastra, e avisa
+                    JOptionPane.showMessageDialog(jCS.janela, "Já consta um serviço com mesmo nome, confira-o,"
+                            + " ou tente outro nome.");
+                } else {
+                    //Se não encontra-lo cadastra-o
+                    JOptionPane.showMessageDialog(jCS.janela, "O id será escolhido pelo Sistema.");
+                    jCS.servico.insert(jCS.conexao, jCS.servico);
+                }
+            } catch (SQLException ex) {
+                System.err.println("\n\n1-Exceção em Cadastro.Administrador.cadastrarServico()\n\n.");
+            }
+            jCS.conexao.desconectar();
+        };
     }
 
+    static ActionListener excluirServicos(JanelaCadastrarServicos jCS) {
+        return (ActionEvent e) -> {
+            jCS.conexao.conectar();
 
+            //Monta o objeto para excluir
+            jCS.servico = new Servico(jCS.tfId.getText(), jCS.tfNome.getText(), jCS.tfDescricao.getText());
+
+            //Busca-o na base de dados
+            ResultSet rs = jCS.servico.select(jCS.conexao, jCS.servico);
+            try {
+
+                if (rs.next()) {
+                    //Se for primeiro e ultimo resultado (evita exclusão em massa)
+                    if (rs.isLast()) {
+                        //Ao encontra-lo excluirá
+                        JOptionPane.showMessageDialog(jCS.janela, "Serviço Excluído.");
+                        jCS.servico.delete(jCS.conexao, jCS.servico);
+                        jCS.limparFormulario();
+                    } else {
+                        JOptionPane.showMessageDialog(jCS.janela, "Confira se as informações inseridas estão idênticas.");
+                    }
+                } else {
+                    //Se não encontra-lo parará e avisará o usuário
+                    JOptionPane.showMessageDialog(jCS.janela, "Confira todas as informações do Serviço.");
+                }
+            } catch (SQLException ex) {
+                System.err.println("\n\n1-Exceção em Cadastro.Administrador.cadastrarServico()\n\n.");
+            }
+            jCS.conexao.desconectar();
+        };
+    }
+
+    static ActionListener cadastrarEquipamentos(JanelaCadastrarEquipamentos jCEq) {
+        return (ActionEvent e) -> {
+            jCEq.conexao.conectar();
+
+            //Monta o objeto para cadastrar
+            jCEq.equipamento = new Equipamento("", jCEq.tfNome.getText(), jCEq.tfQuantidade.getText());
+
+            //Busca-o na base de dados
+            ResultSet rs = jCEq.equipamento.select(jCEq.conexao, jCEq.equipamento);
+            try {
+
+                if (rs.next()) {
+                    //Se encontra-lo não cadastra, mas soma, e avisa
+                    jCEq.alter(jCEq.conexao, jCEq.equipamento);
+                    JOptionPane.showMessageDialog(jCEq.janela, "Já consta um equipamento com mesmo nome, os itens foram"
+                            + "somados.");
+                } else {
+                    //Se não encontra-lo cadastra-o
+                    JOptionPane.showMessageDialog(jCEq.janela, "Novo equipamento cadastrado,"
+                            + "\nO id será escolhido pelo Sistema.");
+                    jCEq.equipamento.insert(jCEq.conexao, jCEq.equipamento);
+                }
+            } catch (SQLException ex) {
+                System.err.println("\n\n1-Exceção em Cadastro.Administrador.cadastrarServico()\n\n.");
+            }
+            jCE.conexao.desconectar();
+        };
+    }
+
+    static ActionListener excluirEquipamentos(JanelaCadastrarEquipamentos jCEq) {
+        return (ActionEvent e) -> {
+            jCS.conexao.conectar();
+
+            //Monta o objeto para excluir
+            jCS.servico = new Servico(jCS.tfId.getText(), jCS.tfNome.getText(), jCS.tfDescricao.getText());
+
+            //Busca-o na base de dados
+            ResultSet rs = jCS.servico.select(jCS.conexao, jCS.servico);
+            try {
+
+                if (rs.next()) {
+                    //Se for primeiro e ultimo resultado (evita exclusão em massa)
+                    if (rs.isLast()) {
+                        //Ao encontra-lo excluirá
+                        JOptionPane.showMessageDialog(jCS.janela, "Serviço Excluído.");
+                        jCS.servico.delete(jCS.conexao, jCS.servico);
+                        jCS.limparFormulario();
+                    } else {
+                        JOptionPane.showMessageDialog(jCS.janela, "Confira se as informações inseridas estão idênticas.");
+                    }
+                } else {
+                    //Se não encontra-lo parará e avisará o usuário
+                    JOptionPane.showMessageDialog(jCS.janela, "Confira todas as informações do Serviço.");
+                }
+            } catch (SQLException ex) {
+                System.err.println("\n\n1-Exceção em Cadastro.Administrador.cadastrarServico()\n\n.");
+            }
+            jCS.conexao.desconectar();
+        };
+    }
+    
+    
+    
     @Override
     public void exibir(Janela janela) {
         janela.exibirInterfaceAdministrador();
@@ -209,8 +332,7 @@ public class Administrador extends Usuario {
         };
     }
 
-    @Override
-    public ActionListener excluir(JanelaCadastrarUsuarios janela) {
+    public static ActionListener excluir(JanelaCadastrarUsuarios janela) {
         return (ActionEvent e) -> {
 
             //0 = YES, 1 = NO

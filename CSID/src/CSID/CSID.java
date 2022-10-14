@@ -3,6 +3,7 @@ package CSID;
 import Cadastro.Administrador;
 import Cadastro.JanelaCadastrarEmbarcacoes;
 import Cadastro.JanelaCadastrarPortos;
+import Cadastro.JanelaCadastrarServicos;
 import Cadastro.JanelaCadastrarUsuarios;
 
 /**
@@ -16,7 +17,7 @@ public class CSID{
         
         Administrador romario = new Administrador(0, "ROmario", "Surino", "RSURI", "ZXC".toCharArray(), "Adm");
         
-        romario.exibir(new JanelaCadastrarUsuarios(romario));
+        romario.exibir(new JanelaCadastrarServicos(romario));
         
     }
 

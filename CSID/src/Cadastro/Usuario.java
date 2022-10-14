@@ -128,6 +128,8 @@ public abstract class Usuario {
         return result;
     }
 
+    
+    
     public ActionListener abrirJanela(Janela janela) {
         return (ActionEvent e) -> {
             this.exibir(janela);
@@ -137,8 +139,6 @@ public abstract class Usuario {
     public abstract void exibir(Janela janela);
 
     public abstract ActionListener cadastrar(JanelaCadastrarUsuarios janela);
-
-    public abstract ActionListener excluir(JanelaCadastrarUsuarios janela);
 
     public ActionListener acessar(Entrar entrar) {
 
@@ -182,6 +182,8 @@ public abstract class Usuario {
         };
     }
 
+    
+    
     public KeyListener pesquisaDinamicaPortos(JanelaCadastrarPortos jCP) {
         return new KeyListener() {
 
@@ -294,6 +296,62 @@ public abstract class Usuario {
 
                 //Desonecta a base de dados
                 jCE.conexao.desconectar();
+            }
+        };
+    }
+
+    public KeyListener pesquisaDinamicaServicos(JanelaCadastrarServicos jCS) {
+        return new KeyListener() {
+
+            //Faz Nada
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+            }
+
+            //Quando solta uma tecla, atualiza o painel com os resultados possíveis
+            @Override
+            public void keyReleased(KeyEvent e) {
+                //Conecta a base de dados
+                jCS.conexao.conectar();
+                jCS.painelLista.removeAll();
+
+                //Monta o objeto para buscar
+                jCS.servico = new Servico(jCS.tfId.getText(), jCS.tfNome.getText(), jCS.tfDescricao.getText());
+
+                //Busca-o na base de dados
+                ResultSet rs = jCS.servico.select(jCS.conexao, jCS.servico);
+                try {
+
+                    if (rs.next()) {
+                        //Se encontra-los Cria um painel com eles e os adiciona a lista
+                        do {
+                            Servico novoS = new Servico(rs.getString("id"), rs.getString("nome"), rs.getString("descricao"));
+
+                            //Monta o cartao de cada Embarcação
+                            JPanel cartao = new JPanel(new GridLayout(0, 1));
+                            cartao.add(new JLabel("Id: " + String.valueOf(novoS.id)));
+                            cartao.add(new JLabel("Nome: " + novoS.nome));
+                            cartao.add(new JLabel("Descrição: " + novoS.descricao));
+                            jCS.painelLista.add(cartao);
+                            jCS.painelLista.add(new JLabel());
+                        } while (rs.next());
+
+                    }
+
+                } catch (SQLException ex) {
+                    System.err.println("\n\n1-Exceção em Cadastro.Usuario.PesquisaDinamicaServicos()\n\n.");
+                    System.err.println(ex);
+                }
+
+                jCS.painelLista.setVisible(false);
+                jCS.painelLista.setVisible(true);
+
+                //Desonecta a base de dados
+                jCS.conexao.desconectar();
             }
         };
     }

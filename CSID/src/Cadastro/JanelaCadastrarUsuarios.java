@@ -230,7 +230,7 @@ public final class JanelaCadastrarUsuarios implements Janela {
 
         //Botões de cadastro
         btCadastrar.addActionListener(usuario.cadastrar(this));
-        btExcluir.addActionListener(usuario.excluir(this));
+        btExcluir.addActionListener(Administrador.excluir(this));
         painelEsquerdo2.add(btCadastrar);
         painelEsquerdo2.add(btExcluir);
 

@@ -15,20 +15,20 @@ import javax.swing.JTextField;
  *
  * @author Daniel
  */
-public class JanelaCadastrarPortos implements Janela {
+public class JanelaCadastrarServicos implements Janela {
 
     public Usuario usuario;
-    public Porto porto;
+    public Servico servico;
     public Connection conexao;
 
     public JFrame janela;
     public JPanel painel, painelEsqForm, painelEsqBotoes, painelLista;
     public JScrollPane scrollPanel;
-    public JLabel lbId, lbNome, lbEndereco, lbTelefone, lbEmail;
-    public JTextField tfId, tfNome, tfEndereco, tfTelefone, tfEmail;
+    public JLabel lbId, lbNome, lbDescricao;
+    public JTextField tfId, tfNome, tfDescricao;
     public JButton btCadastrar, btExcluir;
 
-    public JanelaCadastrarPortos(Usuario usuario) {
+    public JanelaCadastrarServicos(Usuario usuario) {
         //Constrrução do Usuário
         this.usuario = usuario;
 
@@ -37,7 +37,7 @@ public class JanelaCadastrarPortos implements Janela {
 
         //Formatação da Interface
         janela = new JFrame();
-        janela.setTitle("Cadastrar Portos");
+        janela.setTitle("Cadastrar Serviços");
         janela.setBounds(new Rectangle(720, 500));
         janela.setLocationRelativeTo(null);
         janela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -52,24 +52,20 @@ public class JanelaCadastrarPortos implements Janela {
 
         lbId = new JLabel("Id: ");
         lbNome = new JLabel("Nome: ");
-        lbEndereco = new JLabel("Endereço: ");
-        lbTelefone = new JLabel("Telefone: ");
-        lbEmail = new JLabel("E-mail: ");
+        lbDescricao = new JLabel("Descrição: ");
 
         tfId = new JTextField();
-        tfTelefone = new JTextField();
         tfNome = new JTextField();
-        tfEndereco = new JTextField();
-        tfEmail = new JTextField();
+        tfDescricao = new JTextField();
 
     }
 
-    public void limparFormulario() {
+    
+    
+    void limparFormulario() {
         tfId.setText("");
         tfNome.setText("");
-        tfEndereco.setText("");
-        tfTelefone.setText("");
-        tfEmail.setText("");
+        tfDescricao.setText("");
     }
 
     @Override
@@ -79,18 +75,12 @@ public class JanelaCadastrarPortos implements Janela {
         painelEsqForm.add(tfId);
         painelEsqForm.add(lbNome);
         painelEsqForm.add(tfNome);
-        painelEsqForm.add(lbEndereco);
-        painelEsqForm.add(tfEndereco);
-        painelEsqForm.add(lbTelefone);
-        painelEsqForm.add(tfTelefone);
-        painelEsqForm.add(lbEmail);
-        painelEsqForm.add(tfEmail);
+        painelEsqForm.add(lbDescricao);
+        painelEsqForm.add(tfDescricao);
 
-        tfId.addKeyListener(usuario.pesquisaDinamicaPortos(this));
-        tfNome.addKeyListener(usuario.pesquisaDinamicaPortos(this));
-        tfEndereco.addKeyListener(usuario.pesquisaDinamicaPortos(this));
-        tfTelefone.addKeyListener(usuario.pesquisaDinamicaPortos(this));
-        tfEmail.addKeyListener(usuario.pesquisaDinamicaPortos(this));
+        tfId.addKeyListener(usuario.pesquisaDinamicaServicos(this));
+        tfNome.addKeyListener(usuario.pesquisaDinamicaServicos(this));
+        tfDescricao.addKeyListener(usuario.pesquisaDinamicaServicos(this));
 
         scrollPanel.setViewportView(painelLista);
 
@@ -118,15 +108,13 @@ public class JanelaCadastrarPortos implements Janela {
         btCadastrar = new JButton("Cadastrar");
         btExcluir = new JButton("Excluir");
 
-        
         painelEsqBotoes.add(btCadastrar);
         painelEsqBotoes.add(btExcluir);
 
-        btCadastrar.addActionListener(Administrador.cadastrarPortos(this));
-        btExcluir.addActionListener(Administrador.excluirPortos(this));
+        btCadastrar.addActionListener(Administrador.cadastrarServicos(this));
+        btExcluir.addActionListener(Administrador.excluirServicos(this));
 
         exibirInterfaceTecnico();
         return true;
     }
-
 }
