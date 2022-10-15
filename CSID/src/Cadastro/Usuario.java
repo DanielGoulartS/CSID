@@ -355,4 +355,62 @@ public abstract class Usuario {
             }
         };
     }
+
+    KeyListener pesquisaDinamicaEquipamentos(JanelaCadastrarEquipamentos jCEq) {
+        return new KeyListener() {
+
+            //Faz Nada
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+            }
+
+            //Quando solta uma tecla, atualiza o painel com os resultados possíveis
+            @Override
+            public void keyReleased(KeyEvent e) {
+                //Conecta a base de dados
+                jCEq.conexao.conectar();
+                jCEq.painelLista.removeAll();
+
+                //Monta o objeto para buscar
+            jCEq.equipamento = new Equipamento(jCEq.tfId.getText(), jCEq.tfNome.getText(),
+                    String.valueOf(jCEq.cbQuantidade.getSelectedItem()));
+
+                //Busca-o na base de dados
+                ResultSet rs = jCEq.equipamento.select(jCEq.conexao, jCEq.equipamento);
+                try {
+
+                    if (rs.next()) {
+                        //Se encontra-los Cria um painel com eles e os adiciona a lista
+                        do {
+                            Equipamento novoE = new Equipamento(rs.getString("id"), rs.getString("nome"),
+                                    rs.getString("quantidade"));
+
+                            //Monta o cartao de cada Equipamento
+                            JPanel cartao = new JPanel(new GridLayout(0, 1));
+                            cartao.add(new JLabel("Id: " + String.valueOf(novoE.id)));
+                            cartao.add(new JLabel("Nome: " + novoE.nome));
+                            cartao.add(new JLabel("Quantidade: " + novoE.quantidade));
+                            jCEq.painelLista.add(cartao);
+                            jCEq.painelLista.add(new JLabel());
+                        } while (rs.next());
+
+                    }
+
+                } catch (SQLException ex) {
+                    System.err.println("\n\n1-Exceção em Cadastro.Usuario.PesquisaDinamicaEquipamentos()\n\n.");
+                    System.err.println(ex);
+                }
+
+                jCEq.painelLista.setVisible(false);
+                jCEq.painelLista.setVisible(true);
+
+                //Desonecta a base de dados
+                jCEq.conexao.desconectar();
+            }
+        };
+    }
 }

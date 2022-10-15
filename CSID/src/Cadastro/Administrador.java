@@ -21,8 +21,6 @@ public class Administrador extends Usuario {
         super(id, nome, sobrenome, usuario, senha, cargo);
     }
 
-    
-    
     static ActionListener cadastrarPortos(JanelaCadastrarPortos jCP) {
         return (ActionEvent e) -> {
             jCP.conexao.conectar();
@@ -202,65 +200,114 @@ public class Administrador extends Usuario {
 
     static ActionListener cadastrarEquipamentos(JanelaCadastrarEquipamentos jCEq) {
         return (ActionEvent e) -> {
+            //Pede todos os campos caso não estejam preenchidos
+            if (jCEq.tfId.getText().equals("") || jCEq.tfNome.getText().equals("")) {
+                JOptionPane.showMessageDialog(jCEq.janela, "Preencha todos os campos devidamente");
+                return;
+            }
+
             jCEq.conexao.conectar();
 
             //Monta o objeto para cadastrar
-            jCEq.equipamento = new Equipamento("", jCEq.tfNome.getText(), jCEq.tfQuantidade.getText());
+            jCEq.equipamento = new Equipamento(jCEq.tfId.getText(), jCEq.tfNome.getText(),
+                    String.valueOf(jCEq.cbQuantidade.getSelectedItem()));
 
             //Busca-o na base de dados
             ResultSet rs = jCEq.equipamento.select(jCEq.conexao, jCEq.equipamento);
             try {
 
                 if (rs.next()) {
-                    //Se encontra-lo não cadastra, mas soma, e avisa
-                    jCEq.alter(jCEq.conexao, jCEq.equipamento);
-                    JOptionPane.showMessageDialog(jCEq.janela, "Já consta um equipamento com mesmo nome, os itens foram"
-                            + "somados.");
+                    //Se encontra-lo não cadastra, mas
+
+                    if (rs.isLast()) {
+                        //Se for unico resultado, soma a nova quantidade e avisa (Evita acrescimos paralelos)
+                        //Soma a quantidade para registrá-la
+                        int quantiaDb = Integer.valueOf(rs.getString("quantidade"));
+                        int quantiaLocal = Integer.valueOf(jCEq.equipamento.quantidade);
+                        jCEq.equipamento.quantidade = String.valueOf(quantiaDb + quantiaLocal);
+
+                        jCEq.equipamento.alter(jCEq.conexao, jCEq.equipamento);
+                        JOptionPane.showMessageDialog(jCEq.janela, "Já consta um equipamento com mesmo nome, os itens foram"
+                                + " somados.");
+                        jCEq.limparFormulario();
+                    } else {
+                        //Se encontrar muitos itens com estes atributos, avisa e pede correção.
+                        JOptionPane.showMessageDialog(jCEq.janela, "Já constam equipamentos com estes dados.");
+                    }
+
                 } else {
                     //Se não encontra-lo cadastra-o
                     JOptionPane.showMessageDialog(jCEq.janela, "Novo equipamento cadastrado,"
                             + "\nO id será escolhido pelo Sistema.");
                     jCEq.equipamento.insert(jCEq.conexao, jCEq.equipamento);
+                    jCEq.limparFormulario();
                 }
+
             } catch (SQLException ex) {
-                System.err.println("\n\n1-Exceção em Cadastro.Administrador.cadastrarServico()\n\n.");
+                System.err.println("\n\n1-Exceção em Cadastro.Administrador.cadastrarEquipamentos()\n\n.");
+                ex.printStackTrace();
             }
-            jCE.conexao.desconectar();
+            jCEq.conexao.desconectar();
         };
     }
 
     static ActionListener excluirEquipamentos(JanelaCadastrarEquipamentos jCEq) {
         return (ActionEvent e) -> {
-            jCS.conexao.conectar();
+
+            //Pede todos os campos caso não estejam preenchidos
+            if (jCEq.tfId.getText().equals("") || jCEq.tfNome.getText().equals("")) {
+                JOptionPane.showMessageDialog(jCEq.janela, "Preencha todos os campos devidamente");
+                return;
+            }
+
+            jCEq.conexao.conectar();
 
             //Monta o objeto para excluir
-            jCS.servico = new Servico(jCS.tfId.getText(), jCS.tfNome.getText(), jCS.tfDescricao.getText());
+            jCEq.equipamento = new Equipamento(jCEq.tfId.getText(), jCEq.tfNome.getText(),
+                    String.valueOf(jCEq.cbQuantidade.getSelectedItem()));
 
             //Busca-o na base de dados
-            ResultSet rs = jCS.servico.select(jCS.conexao, jCS.servico);
-            try {
+            ResultSet rs = jCEq.equipamento.select(jCEq.conexao, jCEq.equipamento);
 
+            try {
                 if (rs.next()) {
-                    //Se for primeiro e ultimo resultado (evita exclusão em massa)
+                    //Se encontra-lo
+
                     if (rs.isLast()) {
-                        //Ao encontra-lo excluirá
-                        JOptionPane.showMessageDialog(jCS.janela, "Serviço Excluído.");
-                        jCS.servico.delete(jCS.conexao, jCS.servico);
-                        jCS.limparFormulario();
+                        //E for unico resultado
+
+                        //Subtrai a quantia necessária para atualizar a base de dados
+                        int quantiaDb = Integer.parseInt(rs.getString("quantidade"));
+                        int quantiaLocal = Integer.parseInt(jCEq.equipamento.quantidade);
+                        jCEq.equipamento.quantidade = String.valueOf(quantiaDb - quantiaLocal);
+
+                        if (Integer.valueOf(jCEq.equipamento.quantidade) < 0) {
+                            //Se a quantia negativar, apaga-o
+                            jCEq.equipamento.delete(jCEq.conexao, jCEq.equipamento);
+                            JOptionPane.showMessageDialog(jCEq.janela, "Equipamento Completamente Excluido.");
+                        } else {
+                            //Se não, subtrai-o
+                            jCEq.equipamento.alter(jCEq.conexao, jCEq.equipamento);
+                            JOptionPane.showMessageDialog(jCEq.janela, "Equipamento Subtraído.");
+                        }
+
+                        jCEq.limparFormulario();
                     } else {
-                        JOptionPane.showMessageDialog(jCS.janela, "Confira se as informações inseridas estão idênticas.");
+                        //Se encontrar muitos, avisa e cancela
+                        JOptionPane.showMessageDialog(jCEq.janela, "Confira se as informações inseridas estão idênticas.");
                     }
                 } else {
                     //Se não encontra-lo parará e avisará o usuário
-                    JOptionPane.showMessageDialog(jCS.janela, "Confira todas as informações do Serviço.");
+                    JOptionPane.showMessageDialog(jCEq.janela, "Confira todas as informações do Equipamento.");
                 }
             } catch (SQLException ex) {
-                System.err.println("\n\n1-Exceção em Cadastro.Administrador.cadastrarServico()\n\n.");
+                System.err.println("\n\n1-Exceção em Cadastro.Administrador.excluirEquipamentos()\n\n.");
+                ex.printStackTrace();
             }
-            jCS.conexao.desconectar();
+            jCEq.conexao.desconectar();
         };
     }
-    
+
     
     
     @Override

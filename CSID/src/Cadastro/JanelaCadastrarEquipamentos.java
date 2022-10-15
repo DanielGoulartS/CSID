@@ -9,6 +9,7 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -19,7 +20,7 @@ import javax.swing.JTextField;
  *
  * @author Daniel
  */
-class JanelaCadastrarEquipamentos {
+public class JanelaCadastrarEquipamentos implements Janela {
 
     public Usuario usuario;
     public Equipamento equipamento;
@@ -28,8 +29,9 @@ class JanelaCadastrarEquipamentos {
     public JFrame janela;
     public JPanel painel, painelEsqForm, painelEsqBotoes, painelLista;
     public JScrollPane scrollPanel;
-    public JLabel lbId, lbNome, lbDescricao;
-    public JTextField tfId, tfNome, tfQuantidade;
+    public JLabel lbId, lbNome, lbQuantidade;
+    public JTextField tfId, tfNome;
+    public JComboBox cbQuantidade;
     public JButton btCadastrar, btExcluir;
 
     public JanelaCadastrarEquipamentos(Usuario usuario) {
@@ -56,20 +58,74 @@ class JanelaCadastrarEquipamentos {
 
         lbId = new JLabel("Id: ");
         lbNome = new JLabel("Nome: ");
-        lbDescricao = new JLabel("Quantidade: ");
+        lbQuantidade = new JLabel("Quantidade: ");
 
         tfId = new JTextField();
         tfNome = new JTextField();
-        tfQuantidade = new JTextField();
+        cbQuantidade = new JComboBox();
 
     }
 
-    
-    
     void limparFormulario() {
         tfId.setText("");
         tfNome.setText("");
-        tfDescricao.setText("");
+        cbQuantidade.setSelectedIndex(0);
     }
+
     
+    
+    @Override
+    public boolean exibirInterfaceCapitao() {
+        //Adiciona painel de Formulário
+        painelEsqForm.add(lbId);
+        painelEsqForm.add(tfId);
+        painelEsqForm.add(lbNome);
+        painelEsqForm.add(tfNome);
+        painelEsqForm.add(lbQuantidade);
+        painelEsqForm.add(cbQuantidade);
+        
+        
+        for(int i = 0; i <= 100; i++){
+            cbQuantidade.addItem(i);
+        }
+
+        tfId.addKeyListener(usuario.pesquisaDinamicaEquipamentos(this));
+        tfNome.addKeyListener(usuario.pesquisaDinamicaEquipamentos(this));
+
+        scrollPanel.setViewportView(painelLista);
+
+        painel.add(painelEsqForm, BorderLayout.WEST);
+        painel.add(scrollPanel, BorderLayout.CENTER);
+
+        janela.add(painel);
+
+        janela.setVisible(true);
+        return true;
+
+    }
+
+    @Override
+    public boolean exibirInterfaceTecnico() {
+        exibirInterfaceCapitao();
+        return true;
+    }
+
+    @Override
+    public boolean exibirInterfaceAdministrador() {
+        //Adiciona as opções de cadastro e exclusao
+        painel.add(painelEsqBotoes, BorderLayout.SOUTH);
+
+        btCadastrar = new JButton("Cadastrar");
+        btExcluir = new JButton("Excluir");
+
+        painelEsqBotoes.add(btCadastrar);
+        painelEsqBotoes.add(btExcluir);
+
+        btCadastrar.addActionListener(Administrador.cadastrarEquipamentos(this));
+        btExcluir.addActionListener(Administrador.excluirEquipamentos(this));
+
+        exibirInterfaceTecnico();
+        return true;
+    }
+
 }
