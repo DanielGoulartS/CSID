@@ -24,7 +24,7 @@ public class Administrador extends Usuario {
     static ActionListener cadastrarPortos(JanelaCadastrarPortos jCP) {
         return (ActionEvent e) -> {
             jCP.conexao.conectar();
-            //Monta o objeto para cadastrar
+            //Monta o objeto para cadastrarUsuario
             jCP.porto = new Porto("", jCP.tfTelefone.getText(), jCP.tfNome.getText(), jCP.tfEndereco.getText(),
                     jCP.tfEmail.getText());
 
@@ -51,7 +51,7 @@ public class Administrador extends Usuario {
         return (ActionEvent e) -> {
             jCP.conexao.conectar();
 
-            //Monta o objeto para excluir
+            //Monta o objeto para excluirUsuario
             jCP.porto = new Porto("", jCP.tfTelefone.getText(), jCP.tfNome.getText(), jCP.tfEndereco.getText(),
                     jCP.tfEmail.getText());
 
@@ -84,7 +84,7 @@ public class Administrador extends Usuario {
         return (ActionEvent e) -> {
             jCE.conexao.conectar();
 
-            //Monta o objeto para cadastrar
+            //Monta o objeto para cadastrarUsuario
             jCE.embarcacao = new Embarcacao(jCE.tfId.getText(), jCE.tfNome.getText(), jCE.tfNumero.getText());
 
             //Busca-o na base de dados
@@ -111,7 +111,7 @@ public class Administrador extends Usuario {
         return (ActionEvent e) -> {
             jCE.conexao.conectar();
 
-            //Monta o objeto para excluir
+            //Monta o objeto para excluirUsuario
             jCE.embarcacao = new Embarcacao(jCE.tfId.getText(), jCE.tfNome.getText(), jCE.tfNumero.getText());
 
             //Busca-o na base de dados
@@ -143,7 +143,7 @@ public class Administrador extends Usuario {
         return (ActionEvent e) -> {
             jCS.conexao.conectar();
 
-            //Monta o objeto para cadastrar
+            //Monta o objeto para cadastrarUsuario
             jCS.servico = new Servico("", jCS.tfNome.getText(), jCS.tfDescricao.getText());
 
             //Busca-o na base de dados
@@ -170,7 +170,7 @@ public class Administrador extends Usuario {
         return (ActionEvent e) -> {
             jCS.conexao.conectar();
 
-            //Monta o objeto para excluir
+            //Monta o objeto para excluirUsuario
             jCS.servico = new Servico(jCS.tfId.getText(), jCS.tfNome.getText(), jCS.tfDescricao.getText());
 
             //Busca-o na base de dados
@@ -208,7 +208,7 @@ public class Administrador extends Usuario {
 
             jCEq.conexao.conectar();
 
-            //Monta o objeto para cadastrar
+            //Monta o objeto para cadastrarUsuario
             jCEq.equipamento = new Equipamento(jCEq.tfId.getText(), jCEq.tfNome.getText(),
                     String.valueOf(jCEq.cbQuantidade.getSelectedItem()));
 
@@ -245,7 +245,6 @@ public class Administrador extends Usuario {
 
             } catch (SQLException ex) {
                 System.err.println("\n\n1-Exceção em Cadastro.Administrador.cadastrarEquipamentos()\n\n.");
-                ex.printStackTrace();
             }
             jCEq.conexao.desconectar();
         };
@@ -262,7 +261,7 @@ public class Administrador extends Usuario {
 
             jCEq.conexao.conectar();
 
-            //Monta o objeto para excluir
+            //Monta o objeto para excluirUsuario
             jCEq.equipamento = new Equipamento(jCEq.tfId.getText(), jCEq.tfNome.getText(),
                     String.valueOf(jCEq.cbQuantidade.getSelectedItem()));
 
@@ -302,100 +301,155 @@ public class Administrador extends Usuario {
                 }
             } catch (SQLException ex) {
                 System.err.println("\n\n1-Exceção em Cadastro.Administrador.excluirEquipamentos()\n\n.");
-                ex.printStackTrace();
             }
             jCEq.conexao.desconectar();
         };
     }
 
-    
-    
-    @Override
-    public void exibir(Janela janela) {
-        janela.exibirInterfaceAdministrador();
-
-    }
-
-    @Override
-    public ActionListener cadastrar(JanelaCadastrarUsuarios janela) {
+    public static ActionListener cadastrarUsuario(JanelaCadastrarUsuarios jCU) {
         return (ActionEvent e) -> {
 
-            String campoSenha = String.valueOf(janela.pfSenha.getPassword());
-            String campoConfirmacao = String.valueOf(janela.pfConfirmarSenha.getPassword());
+            jCU.conexao.conectar();
+            
+            String campoSenha = String.valueOf(jCU.pfSenha.getPassword());
+            String campoConfirmacao = String.valueOf(jCU.pfConfirmarSenha.getPassword());
 
-            //Se a senha for igual a confirmação
-            if (campoSenha.equals(campoConfirmacao) && !campoSenha.equals("") && !janela.tfUsuario.getText().equals("")) {
+            //Se a senha não for igual a confirmação ou faltar algum campo preenchido, retorna
+            if (!campoSenha.equals(campoConfirmacao) || campoSenha.equals("") || jCU.tfUsuario.getText().equals("")) {
+                JOptionPane.showMessageDialog(jCU.painel, "Preencha corretamente todos os campos, e certifique-se"
+                        + " que senha e confirmação estão iguais.");
+                return;
+            }
 
-                Usuario novoUsuario = new Capitao(0, janela.tfNome.getText(), janela.tfSobrenome.getText(),
-                        janela.tfUsuario.getText(), janela.pfSenha.getPassword(),
-                        janela.cbCargo.getSelectedItem().toString());
+            //Cria o painel de Autenticação
+            JPanel painelConfirmacao = new JPanel(new GridLayout(0, 1));
+            JPanel painelConfirmacao1 = new JPanel(new GridLayout(1, 2));
+            JPanel painelConfirmacao2 = new JPanel(new GridLayout(1, 2));
+            JLabel lbUsuarioConfirmacao = new JLabel("Usuario: ");
+            JLabel lbSenhaConfirmacao = new JLabel("Senha: ");
+            JTextField tfUsuarioConfirmacao = new JTextField();
+            JPasswordField pfSenhaConfirmacao = new JPasswordField();
 
-                //Cria o painel de Autenticação
-                JPanel painelConfirmacao = new JPanel(new GridLayout(0, 1));
-                JPanel painelConfirmacao1 = new JPanel(new GridLayout(1, 2));
-                JPanel painelConfirmacao2 = new JPanel(new GridLayout(1, 2));
-                JLabel lbUsuarioConfirmacao = new JLabel("Usuario: ");
-                JLabel lbSenhaConfirmacao = new JLabel("Senha: ");
-                JTextField tfUsuarioConfirmacao = new JTextField();
-                JPasswordField pfSenhaConfirmacao = new JPasswordField();
+            painelConfirmacao1.add(lbUsuarioConfirmacao);
+            painelConfirmacao1.add(tfUsuarioConfirmacao);
+            painelConfirmacao2.add(lbSenhaConfirmacao);
+            painelConfirmacao2.add(pfSenhaConfirmacao);
+            painelConfirmacao.add(painelConfirmacao1);
+            painelConfirmacao.add(painelConfirmacao2);
 
-                painelConfirmacao1.add(lbUsuarioConfirmacao);
-                painelConfirmacao1.add(tfUsuarioConfirmacao);
-                painelConfirmacao2.add(lbSenhaConfirmacao);
-                painelConfirmacao2.add(pfSenhaConfirmacao);
-                painelConfirmacao.add(painelConfirmacao1);
-                painelConfirmacao.add(painelConfirmacao2);
+            JOptionPane.showMessageDialog(jCU.painel, painelConfirmacao, "Você precisa de um Administrador",
+                    JOptionPane.QUESTION_MESSAGE);
 
-                JOptionPane.showMessageDialog(janela.painel, painelConfirmacao, "Você precisa de um Administrador",
-                        JOptionPane.QUESTION_MESSAGE);
+            //Cria um usuário incompleto com estas informações
+            jCU.usuario = new Administrador(0, "", "", tfUsuarioConfirmacao.getText(),
+                    pfSenhaConfirmacao.getPassword(), "000");
 
-                //E busca o usuario na base
-                Usuario autenticador = new Administrador(0, "", "", tfUsuarioConfirmacao.getText(),
-                        pfSenhaConfirmacao.getPassword(), "000");
+            //E busca exatamente este usuário e senha
+            ResultSet rs = jCU.usuario.selectPorUsuarioESenha(jCU.conexao, jCU.usuario);
 
-                //sempre retorna
-                autenticador = novoUsuario.select(janela.conexao, autenticador);
+            
+            
+            
+            
+            try {
+                
+                
+                
+                //Se houverem resultados
+                if (rs.next()) {
 
-                //Se for ADM
-                if (autenticador instanceof Administrador) {
-                    //Executará o novo cadastro
-                    if (novoUsuario.insert(janela.conexao, novoUsuario)) {
-                        JOptionPane.showMessageDialog(janela.painel, "Cadastrado com sucesso.");
-                        janela.limparCampos();
-                        //Ou falhará com o nome repetido
+                    //Se for um só
+                    if (rs.isLast()) {
+                        
+                        //Caso seja Administrador monta o usuário para cadastrarUsuario abaixo.
+                        switch (rs.getString("cargo")) {
+                            case "Adm":                                
+                                //Cria um novo usuário para Cadastrar
+                                jCU.usuario = new Comandante(0, jCU.tfNome.getText(), jCU.tfSobrenome.getText(),
+                                        jCU.tfUsuario.getText(), jCU.pfSenha.getPassword(),
+                                        jCU.cbCargo.getSelectedItem().toString());
+
+                                //Mas antes confere se o nome está em uso
+                                ResultSet res = jCU.usuario.selectPorUsuario(jCU.conexao, jCU.usuario);
+
+                                    if (res.next()) {
+                                        //Caso o nome de usuário esteja usado, não o cadastra
+                                        JOptionPane.showMessageDialog(jCU.painel, "Erro. \nNome de Usuário invalido.");
+                                    } else {
+                                        //Se não, Cadastra
+                                        jCU.usuario.insert(jCU.conexao, jCU.usuario);
+                                        JOptionPane.showMessageDialog(jCU.painel, "Cadastrado com sucesso.");
+                                        jCU.limparCampos();
+                                    }
+                                break;
+                            case "Téc":
+                            case "Com":
+                                JOptionPane.showMessageDialog(jCU.painel, painelConfirmacao, "Este usuário não "
+                                        + "tem essa permissão.", JOptionPane.ERROR_MESSAGE);
+                        }
                     } else {
-                        JOptionPane.showMessageDialog(janela.painel, "Falha no Cadastro, Nome de Usuário invalido.");
+                        JOptionPane.showMessageDialog(jCU.painel, painelConfirmacao, "Autenticação inconclusiva.",
+                                JOptionPane.ERROR_MESSAGE);
                     }
 
-                    //Ou o usuario não é ADM
                 } else {
-                    JOptionPane.showMessageDialog(janela.painel, "Administrador não autenticado.");
+                    JOptionPane.showMessageDialog(jCU.painel, painelConfirmacao, "Não autenticado.",
+                            JOptionPane.ERROR_MESSAGE);
                 }
 
-            } else {
-                JOptionPane.showMessageDialog(janela.painel, "Verifique o nome de usuário, senha e confirmação, e tente"
-                        + "novamente.");
+                
+                
+            } catch (SQLException ex) {
+                System.err.println("\n\n Exceção em Cadastro.Administrador.cadastrar()\n\n" + ex);
             }
+            
+            jCU.conexao.desconectar();
+            
         };
     }
 
-    public static ActionListener excluir(JanelaCadastrarUsuarios janela) {
+    public static ActionListener excluirUsuario(JanelaCadastrarUsuarios jCU) {
         return (ActionEvent e) -> {
+            
+            jCU.conexao.conectar();
 
             //0 = YES, 1 = NO
-            int permit = JOptionPane.showConfirmDialog(janela.janela, "Confirme o Nome, Sobrenome, e o Nome de usuário."
+            int permit = JOptionPane.showConfirmDialog(jCU.janela, "Confirme os dados, e principalmente o ID."
                     + "\nUma vez executada, esta ação não poderá ser desfeita."
                     + "\nDeseja continuar?",
                     "Excluir Usuário", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
             if (permit == 0) {
-                Usuario novoUsuario = new Capitao(0, janela.tfNome.getText(), janela.tfSobrenome.getText(),
-                        janela.tfUsuario.getText(), janela.pfSenha.getPassword(),
-                        janela.cbCargo.getSelectedItem().toString());
+                //Monta o usuário para Excluir
+                jCU.usuario = new Comandante(Integer.parseInt(jCU.tfId.getText()), 
+                        jCU.tfNome.getText(), jCU.tfSobrenome.getText(),
+                        jCU.tfUsuario.getText(), jCU.pfSenha.getPassword(),
+                        jCU.cbCargo.getSelectedItem().toString());
 
-                novoUsuario.delete(janela.conexao, janela.janela, novoUsuario);
+                //Busca o usuário pelo nome de usuário
+                ResultSet rs = jCU.usuario.selectPorUsuario(jCU.conexao, jCU.usuario);
+                
+                
+                //Se obtiver o resultado, obviamente unico por conta do cadastro
+                try {
+                
+                    if(rs.next()){
+                        jCU.usuario.delete(jCU.conexao, jCU.janela, jCU.usuario);
+                    }
+                    
+                } catch (SQLException ex) {
+                    System.err.println("\n\nExceção em Cadastro.Administrador.excluirUsuario();\n\n" + ex);
+                } 
             }
+            
+            jCU.conexao.desconectar();
         };
+    }
+    
+    @Override
+    public void exibir(Janela janela) {
+        janela.exibirInterfaceAdministrador();
+
     }
 
 }

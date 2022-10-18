@@ -6,10 +6,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -28,31 +24,16 @@ import javax.swing.border.BevelBorder;
 public final class JanelaCadastrarUsuarios implements Janela {
 
     //Instanciação de Váriáveis
-    public Connection conexao = new Connection();
+    public Connection conexao;
     public Usuario usuario;
     public JFrame janela;
-    public JPanel painel = new JPanel(new GridLayout(0, 2));
-    public JPanel painelEsquerdo = new JPanel(new BorderLayout());
-    public JPanel painelEsquerdo1 = new JPanel(new GridLayout(0, 2));
-    public JPanel painelEsquerdo2 = new JPanel(new FlowLayout());
-    public JPanel painelDireito = new JPanel(new GridLayout(0, 1));
-    public JScrollPane scrollPane = new JScrollPane();
-    public JLabel lbId = new JLabel("ID: ");
-    public JLabel lbNome = new JLabel("Nome: ");
-    public JLabel lbSobrenome = new JLabel("Sobrenome: ");
-    public JLabel lbUsuario = new JLabel("Usuário: ");
-    public JLabel lbSenha = new JLabel("Senha: ");
-    public JLabel lbConfirmarSenha = new JLabel("Confirmar Senha: ");
-    public JLabel lbCargo = new JLabel("Cargo: ");
-    public JTextField tfId = new JTextField();
-    public JTextField tfNome = new JTextField();
-    public JTextField tfSobrenome = new JTextField();
-    public JTextField tfUsuario = new JTextField();
-    public JPasswordField pfSenha = new JPasswordField();
-    public JPasswordField pfConfirmarSenha = new JPasswordField();
-    public JComboBox cbCargo = new JComboBox();
-    public JButton btCadastrar = new JButton("Cadastrar");
-    public JButton btExcluir = new JButton("Excluir");
+    public JPanel painel, painelEsquerdo, painelEsquerdo1, painelEsquerdo2, painelLista;
+    public JScrollPane scrollPane;
+    public JLabel lbId, lbNome, lbSobrenome, lbUsuario, lbSenha, lbConfirmarSenha, lbCargo;
+    public JTextField tfId, tfNome, tfSobrenome, tfUsuario;
+    public JPasswordField pfSenha, pfConfirmarSenha;
+    public JComboBox cbCargo;
+    public JButton btCadastrar, btExcluir;
 
     public JanelaCadastrarUsuarios(Usuario usuario) {
         //Constrrução do Usuário
@@ -66,80 +47,33 @@ public final class JanelaCadastrarUsuarios implements Janela {
         janela.setBounds(new Rectangle(720, 500));
         janela.setTitle("Cadastrar Usuários");
         janela.setLocationRelativeTo(null);
-        janela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        janela.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         janela.setResizable(false);
+        
+        painel = new JPanel(new GridLayout(0, 2));
 
         //Painel Formulário de Usuário
-        painelEsquerdo1.add(lbId);
-        painelEsquerdo1.add(tfId);
-        painelEsquerdo1.add(lbNome);
-        painelEsquerdo1.add(tfNome);
-        painelEsquerdo1.add(lbSobrenome);
-        painelEsquerdo1.add(tfSobrenome);
-        painelEsquerdo1.add(lbUsuario);
-        painelEsquerdo1.add(tfUsuario);
-
-        painelEsquerdo.add(painelEsquerdo1, BorderLayout.CENTER);
-        painelEsquerdo.add(painelEsquerdo2, BorderLayout.SOUTH);
-
-        cbCargo.addItem("Administrador");
-        cbCargo.addItem("Técnico");
-        cbCargo.addItem("Capitão de Embarcação");
-
-        //Painel Usuários
-        scrollPane.setViewportView(painelDireito);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-
+        painelEsquerdo = new JPanel(new BorderLayout());
+        painelEsquerdo1 = new JPanel(new GridLayout(0, 2));
+        painelEsquerdo2 = new JPanel(new FlowLayout());
+        
+        lbId = new JLabel("ID: ");
+        lbNome = new JLabel("Nome: ");
+        lbSobrenome = new JLabel("Sobrenome: ");
+        lbUsuario = new JLabel("Usuário: ");
+        lbSenha = new JLabel("Senha: ");
+        lbConfirmarSenha = new JLabel("Confirmar Senha: ");
+        lbCargo = new JLabel("Cargo: ");
+        
+        tfId = new JTextField();
+        tfNome = new JTextField();
+        tfSobrenome = new JTextField();
+        tfUsuario = new JTextField();
+        
         //Exibição
-        painel.add(painelEsquerdo);
-
         janela.add(painel);
-
     }
 
-    
-    
-    public KeyListener pesquisaDinamica(JPanel painel) {
-        return new KeyListener() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                painel.removeAll();
-
-                if (!conexao.isValid()) {
-                    conexao.conectar();
-                }
-
-                ResultSet rs;
-                rs = conexao.executeQuery("SELECT * FROM usuarios WHERE usuario LIKE '%" + tfUsuario.getText() + "%'"
-                        + " AND id LIKE '%" + tfId.getText() + "%'"
-                        + " AND nome LIKE '%" + tfNome.getText() + "%'"
-                        + " AND sobrenome LIKE '%" + tfSobrenome.getText() + "%';");
-
-                try {
-                    while (rs.next()) {
-                        painel.add(novoPainel(rs.getString("id"), rs.getString("usuario"),
-                                rs.getString("nome"), rs.getString("sobrenome"), rs.getString("cargo")));
-                        painel.add(new JLabel());
-                    }
-                } catch (SQLException ex) {
-                    System.err.println("Erro na pesquisa ou alimentação do painel."
-                            + "View.Cadastro.GerenciarUsuario.pesquisaDinamica().");
-                }
-
-                painel.setVisible(false);
-                painel.setVisible(true);
-
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-            }
-
-            @Override
-            public void keyTyped(KeyEvent e) {
-            }
-        };
-    }
 
     public JPanel novoPainel(String id, String usuario, String nome, String sobrenome, String cargo) {
         //Formata Elemento
@@ -176,19 +110,48 @@ public final class JanelaCadastrarUsuarios implements Janela {
     }
 
     public boolean exibirInterfaceExterna() {
+        
+        //Construção de itens ainda não criados
+        pfSenha = new JPasswordField();
+        pfConfirmarSenha = new JPasswordField();
+        
+        cbCargo = new JComboBox();
+        
+        btCadastrar = new JButton("Cadastrar");
 
+        
         //Completar formulário de usuário
+        painelEsquerdo1.add(lbId);
+        painelEsquerdo1.add(tfId);
+        painelEsquerdo1.add(lbNome);
+        painelEsquerdo1.add(tfNome);
+        painelEsquerdo1.add(lbSobrenome);
+        painelEsquerdo1.add(tfSobrenome);
+        painelEsquerdo1.add(lbUsuario);
+        painelEsquerdo1.add(tfUsuario);
         painelEsquerdo1.add(lbSenha);
         painelEsquerdo1.add(pfSenha);
         painelEsquerdo1.add(lbConfirmarSenha);
         painelEsquerdo1.add(pfConfirmarSenha);
         painelEsquerdo1.add(lbCargo);
         painelEsquerdo1.add(cbCargo);
+        
+        cbCargo.addItem("Administrador");
+        cbCargo.addItem("Técnico");
+        cbCargo.addItem("Comandante de Embarcação");
+        
 
         //Botões de cadastro
-        btCadastrar.addActionListener(usuario.cadastrar(this));
+        btCadastrar.addActionListener(Administrador.cadastrarUsuario(this));
         painelEsquerdo2.add(btCadastrar);
         painelEsquerdo.add(painelEsquerdo2, BorderLayout.SOUTH);
+
+        //Painel de Pesquisa
+        painelEsquerdo.add(painelEsquerdo1, BorderLayout.CENTER);
+        painelEsquerdo.add(painelEsquerdo2, BorderLayout.SOUTH);
+
+        //Painel de Usuarios
+        painel.add(painelEsquerdo);
 
         //Geral
         janela.setVisible(true);
@@ -196,15 +159,39 @@ public final class JanelaCadastrarUsuarios implements Janela {
     }
 
     @Override
-    public boolean exibirInterfaceCapitao() {
+    public boolean exibirInterfaceComandante() {
 
+        //Exibição da Interface Gráfica
+        //Painel Usuários
+        painelLista = new JPanel(new GridLayout(0, 1));
+        scrollPane = new JScrollPane();
+        
+        scrollPane.setViewportView(painelLista);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+        //Painel de Formulário
+        painelEsquerdo1.add(lbId);
+        painelEsquerdo1.add(tfId);
+        painelEsquerdo1.add(lbNome);
+        painelEsquerdo1.add(tfNome);
+        painelEsquerdo1.add(lbSobrenome);
+        painelEsquerdo1.add(tfSobrenome);
+        painelEsquerdo1.add(lbUsuario);
+        painelEsquerdo1.add(tfUsuario);
+        
+        
         //Funcionalidades
-        tfId.addKeyListener(pesquisaDinamica(painelDireito));
-        tfUsuario.addKeyListener(pesquisaDinamica(painelDireito));
-        tfNome.addKeyListener(pesquisaDinamica(painelDireito));
-        tfSobrenome.addKeyListener(pesquisaDinamica(painelDireito));
+        tfId.addKeyListener(usuario.pesquisaDinamicaUsuarios(this));
+        tfUsuario.addKeyListener(usuario.pesquisaDinamicaUsuarios(this));
+        tfNome.addKeyListener(usuario.pesquisaDinamicaUsuarios(this));
+        tfSobrenome.addKeyListener(usuario.pesquisaDinamicaUsuarios(this));
 
         //Painel de pesquisa
+        painelEsquerdo.add(painelEsquerdo1, BorderLayout.CENTER);
+        painelEsquerdo.add(painelEsquerdo2, BorderLayout.SOUTH);
+        
+        //Painel de Usuarios
+        painel.add(painelEsquerdo);
         painel.add(scrollPane);
 
         //Geral
@@ -214,12 +201,23 @@ public final class JanelaCadastrarUsuarios implements Janela {
 
     @Override
     public boolean exibirInterfaceTecnico() {
-        exibirInterfaceCapitao();
+        exibirInterfaceComandante();
         return true;
     }
 
     @Override
     public boolean exibirInterfaceAdministrador() {
+        
+        //Construção de Itens
+        pfSenha = new JPasswordField();
+        pfConfirmarSenha = new JPasswordField();
+        
+        cbCargo = new JComboBox();
+        
+        btCadastrar = new JButton("Cadastrar");
+        btExcluir = new JButton("Excluir");
+        
+        
         //Completar formulário de usuário
         painelEsquerdo1.add(lbSenha);
         painelEsquerdo1.add(pfSenha);
@@ -228,9 +226,14 @@ public final class JanelaCadastrarUsuarios implements Janela {
         painelEsquerdo1.add(lbCargo);
         painelEsquerdo1.add(cbCargo);
 
+        cbCargo.addItem("Administrador");
+        cbCargo.addItem("Técnico");
+        cbCargo.addItem("Comandante de Embarcação");
+        
+        
         //Botões de cadastro
-        btCadastrar.addActionListener(usuario.cadastrar(this));
-        btExcluir.addActionListener(Administrador.excluir(this));
+        btCadastrar.addActionListener(Administrador.cadastrarUsuario(this));
+        btExcluir.addActionListener(Administrador.excluirUsuario(this));
         painelEsquerdo2.add(btCadastrar);
         painelEsquerdo2.add(btExcluir);
 

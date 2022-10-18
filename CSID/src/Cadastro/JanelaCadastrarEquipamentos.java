@@ -46,7 +46,7 @@ public class JanelaCadastrarEquipamentos implements Janela {
         janela.setTitle("Cadastrar Equipamentos");
         janela.setBounds(new Rectangle(720, 500));
         janela.setLocationRelativeTo(null);
-        janela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        janela.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         janela.setResizable(false);
 
         painel = new JPanel(new BorderLayout());
@@ -75,7 +75,7 @@ public class JanelaCadastrarEquipamentos implements Janela {
     
     
     @Override
-    public boolean exibirInterfaceCapitao() {
+    public boolean exibirInterfaceComandante() {
         //Adiciona painel de Formulário
         painelEsqForm.add(lbId);
         painelEsqForm.add(tfId);
@@ -106,7 +106,7 @@ public class JanelaCadastrarEquipamentos implements Janela {
 
     @Override
     public boolean exibirInterfaceTecnico() {
-        exibirInterfaceCapitao();
+        exibirInterfaceComandante();
         return true;
     }
 

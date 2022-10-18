@@ -21,6 +21,7 @@ public abstract class Usuario {
     public int id;
     public String nome, sobrenome, usuario, senha, cargo;
 
+    //Métodos da classe usuário
     public Usuario(int id, String nome, String sobrenome, String usuario, char[] senha, String cargo) {
         this.id = id;
         this.nome = nome;
@@ -30,119 +31,57 @@ public abstract class Usuario {
         this.cargo = cargo.substring(0, 3);
     }
 
-    public Usuario select(Connection conexao, Usuario usuario) {
-
-        System.out.println(conexao.isValid());
-
-        conexao.conectar();
-
-        System.out.println("1");
-        Usuario adm = new Capitao(usuario.id, usuario.nome, usuario.sobrenome,
-                usuario.usuario, usuario.senha.toCharArray(), usuario.cargo);
-
-        System.out.println("2");
-        ResultSet rs = conexao.executeQuery("SELECT * FROM `usuarios` WHERE usuario = '" + usuario.usuario + "' "
-                + "AND senha = '" + usuario.senha + "' ORDER BY `id` ASC;");
-
-        System.out.println("3");
-        try {
-            if (rs.next()) {
-
-                System.out.println("4");
-                switch (rs.getString("cargo")) {
-                    case "Adm":
-                        System.out.println("ADM");
-                        adm = new Administrador(rs.getInt("id"), rs.getString("nome"), rs.getString("sobrenome"),
-                                rs.getString("usuario"), rs.getString("senha").toCharArray(), rs.getString("cargo"));
-                        break;
-                    case "Téc":
-                        System.out.println("TEC");
-                        adm = new Tecnico(rs.getInt("id"), rs.getString("nome"), rs.getString("sobrenome"),
-                                rs.getString("usuario"), rs.getString("senha").toCharArray(), rs.getString("cargo"));
-                        break;
-                    case "Cap":
-                        System.out.println("CAP");
-                        adm = new Capitao(rs.getInt("id"), rs.getString("nome"), rs.getString("sobrenome"),
-                                rs.getString("usuario"), rs.getString("senha").toCharArray(), rs.getString("cargo"));
-                        break;
-                }
-
-            }
-        } catch (SQLException ex) {
-            System.err.println("Exceção em Usuario.select()");
-        }
-        conexao.desconectar();
-        return adm;
-
-    }
-
     public boolean insert(Connection conexao, Usuario usuario) {
 
-        conexao.conectar();
-        boolean result = false;
-
-        ResultSet rs = conexao.executeQuery("SELECT * FROM usuarios WHERE usuario = '" + usuario.usuario + "';");
-
-        try {//Se ja houver este usuário, nao cadastrará
-
-            if (rs.next()) {
-            } else {
-                //Se não houver cadastrará normalmente
-                conexao.execute("INSERT INTO `usuarios`( `nome`, `sobrenome`, `usuario`, `senha`, `cargo`)"
-                        + " VALUES ('" + usuario.nome + "','" + usuario.sobrenome + "','" + usuario.usuario + "','"
-                        + usuario.senha + "','" + usuario.cargo + "');");
-                result = true;
-            }
-        } catch (SQLException ex) {
-            System.err.println("Erro em Classes.Cadastro.Usuario.insert()");
-        }
-
-        conexao.desconectar();
+        boolean result = conexao.execute("INSERT INTO `usuarios`( `nome`, `sobrenome`, `usuario`, `senha`, `cargo`)"
+                + " VALUES ('" + usuario.nome + "','" + usuario.sobrenome + "','" + usuario.usuario + "','"
+                + usuario.senha + "','" + usuario.cargo + "');");
 
         return result;
     }
 
     public boolean delete(Connection conexao, Component componente, Usuario usuario) {
 
-        conexao.conectar();
-        boolean result = false;
-
-        ResultSet rs = conexao.executeQuery("SELECT * FROM usuarios WHERE usuario = '" + usuario.usuario + "';");
-        try {
-            if (!rs.next()) {
-                JOptionPane.showMessageDialog(componente, "Nome de Usuário invalido.");
-                return result;
-            }
-        } catch (SQLException ex) {
-            System.err.println("Erro em Classes.Cadastro.Usuario.delete()");
-        }
-
-        if (conexao.execute("DELETE FROM `usuarios` WHERE `nome` = '" + usuario.nome + "'"
+        boolean result = conexao.execute("DELETE FROM `usuarios` WHERE `nome` = '" + usuario.nome + "'"
                 + "AND `sobrenome` = '" + usuario.sobrenome + "'"
-                + "AND `usuario` = '" + usuario.usuario + "';")) {
-            result = true;
-        }
-
-        conexao.desconectar();
+                + "AND `usuario` = '" + usuario.usuario + "';");
 
         return result;
     }
 
+    public ResultSet selectParaPesquisar(Connection conexao, Usuario usuario) {
+
+        ResultSet rs = conexao.executeQuery("SELECT * FROM `usuarios` WHERE "
+                + "`nome` LIKE '%" + usuario.nome + "%' AND"
+                + " `sobrenome` LIKE '%" + usuario.sobrenome + "%' AND"
+                        + " `usuario` LIKE '%" + usuario.usuario + "%' ORDER BY `id` ASC;");
+        return rs;
+
+    }
     
-    
-    public ActionListener abrirJanela(Janela janela) {
-        return (ActionEvent e) -> {
-            this.exibir(janela);
-        };
+    public ResultSet selectPorUsuario(Connection conexao, Usuario usuario) {
+
+        ResultSet rs = conexao.executeQuery("SELECT * FROM `usuarios` WHERE  `usuario` = '" + usuario.usuario + "';");
+        return rs;
+
     }
 
+    public ResultSet selectPorUsuarioESenha(Connection conexao, Usuario usuario) {
+
+        ResultSet rs = conexao.executeQuery("SELECT * FROM `usuarios` WHERE `usuario` = '" + usuario.usuario + "' AND"
+                + " `senha` = '" + usuario.senha + "' ORDER BY `id` ASC;");
+        return rs;
+
+    }
+
+    //Métodos do Ator Usuario    
     public abstract void exibir(Janela janela);
 
-    public abstract ActionListener cadastrar(JanelaCadastrarUsuarios janela);
-
-    public ActionListener acessar(Entrar entrar) {
+    public ActionListener logIn(janelaEntrar jE) {
 
         return (ActionEvent e) -> {
+
+            jE.conexao.conectar();
 
             //Cria o painel de Autenticação
             JPanel painelConfirmacao = new JPanel(new GridLayout(0, 1));
@@ -161,29 +100,123 @@ public abstract class Usuario {
             painelConfirmacao.add(painelConfirmacao2);
 
             //Exibe-o
-            JOptionPane.showMessageDialog(entrar.painel, painelConfirmacao, "Login",
+            JOptionPane.showMessageDialog(jE.painel, painelConfirmacao, "Login",
                     JOptionPane.QUESTION_MESSAGE);
 
-            Usuario autenticador = new Administrador(0, "", "", tfUsuarioConfirmacao.getText(),
+            //Cria o usuário para autenticar e busca-o
+            jE.usuario = new Administrador(0, "", "", tfUsuarioConfirmacao.getText(),
                     pfSenhaConfirmacao.getPassword(), "000");
 
-            Usuario novoUsuario = autenticador.select(entrar.conexao, autenticador);
+            ResultSet rs = jE.usuario.selectPorUsuarioESenha(jE.conexao, jE.usuario);
 
-            //Se mudar as informações incompativeis, acesse
-            if (!novoUsuario.cargo.equals(autenticador.cargo)) {
+            try {
 
-                novoUsuario.exibir(new JanelaTodasAsSolicitacoes(novoUsuario));
 
-                //se manter cancele
-            } else {
-                System.err.println("Exceção em Usuario.acessar()");
-                JOptionPane.showMessageDialog(entrar.painel, "Falha na autenticação.");
+            //Se houver exatamente este usuário, filtra seu cargo, e monta-o de acordo
+                if (rs.next()) {
+                    switch (rs.getString("cargo")) {
+                        case "Adm":
+                            jE.usuario = new Administrador(rs.getInt("id"), rs.getString("nome"),
+                                    rs.getString("sobrenome"), rs.getString("usuario"),
+                                    rs.getString("senha").toCharArray(), rs.getString("cargo"));
+                            
+                            jE.usuario.exibir(new JanelaTodasAsSolicitacoes(jE.usuario));
+                            
+                            break;
+                        case "Téc":
+                            jE.usuario = new Tecnico(rs.getInt("id"), rs.getString("nome"),
+                                    rs.getString("sobrenome"), rs.getString("usuario"),
+                                    rs.getString("senha").toCharArray(), rs.getString("cargo"));
+                            
+                            jE.usuario.exibir(new JanelaTodasAsSolicitacoes(jE.usuario));
+                            
+                            break;
+                        case "Com":
+                            jE.usuario = new Comandante(rs.getInt("id"), rs.getString("nome"),
+                                    rs.getString("sobrenome"), rs.getString("usuario"),
+                                    rs.getString("senha").toCharArray(), rs.getString("cargo"));
+                            
+                            jE.usuario.exibir(new JanelaTodasAsSolicitacoes(jE.usuario));
+                            
+                            break;
+                    }
+                    //Se não houver, retorna e avisa
+                } else {
+                    JOptionPane.showMessageDialog(jE.painel, "Falha na autenticação. \nNão encontrado.");
+                    return;
+                }
+
+
+            } catch (SQLException ex) {
+                System.err.println("\n\n Exceção em Cadastro.Usuario.logIn() \n\n" + ex);
+            }
+
+            jE.conexao.desconectar();
+        };
+    }
+
+    public KeyListener pesquisaDinamicaUsuarios(JanelaCadastrarUsuarios jCU) {
+        return new KeyListener() {
+
+            //Faz Nada
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+            }
+
+            //Quando solta uma tecla, atualiza o painel com os resultados possíveis
+            @Override
+            public void keyReleased(KeyEvent e) {
+                //Conecta a base de dados
+                jCU.conexao.conectar();
+                jCU.painelLista.removeAll();
+
+                //Monta o objeto para buscar
+                jCU.usuario = new Comandante(Integer.parseInt(jCU.tfId.getText()), jCU.tfNome.getText(), 
+                        jCU.tfSobrenome.getText(),jCU.tfUsuario.getText(),
+                        "0000".toCharArray(), "000");
+
+                //Busca-o na base de dados
+                ResultSet rs = jCU.usuario.selectParaPesquisar(jCU.conexao, jCU.usuario);
+                try {
+
+                    if (rs.next()) {
+                        //Se encontra-los Cria um painel com eles e os adiciona a lista
+                        do {
+                            Usuario novoU = new Comandante(rs.getInt("id"), rs.getString("nome"), 
+                                    rs.getString("sobrenome"), rs.getString("usuario"), 
+                                    rs.getString("senha").toCharArray(), rs.getString("cargo"));
+
+                            //Monta o cartao de cada Porto
+                            JPanel cartao = new JPanel(new GridLayout(0, 1));
+                            cartao.add(new JLabel("Id: " + String.valueOf(novoU.id)));
+                            cartao.add(new JLabel("Usuario: " + novoU.usuario));
+                            cartao.add(new JLabel("Nome: " + novoU.nome + " " + novoU.sobrenome));
+                            cartao.add(new JLabel("Cargo: " + novoU.cargo));
+                            
+                            jCU.painelLista.add(cartao);
+                            jCU.painelLista.add(new JLabel());
+                        } while (rs.next());
+
+                    }
+
+                } catch (SQLException ex) {
+                    System.err.println("\n\n1-Exceção em Cadastro.Usuario.PesquisaDinamicaPortos()\n\n.");
+                    System.err.println(ex);
+                }
+
+                jCU.painelLista.setVisible(false);
+                jCU.painelLista.setVisible(true);
+
+                //Desonecta a base de dados
+                jCU.conexao.desconectar();
             }
         };
     }
 
-    
-    
     public KeyListener pesquisaDinamicaPortos(JanelaCadastrarPortos jCP) {
         return new KeyListener() {
 
@@ -356,7 +389,7 @@ public abstract class Usuario {
         };
     }
 
-    KeyListener pesquisaDinamicaEquipamentos(JanelaCadastrarEquipamentos jCEq) {
+    public KeyListener pesquisaDinamicaEquipamentos(JanelaCadastrarEquipamentos jCEq) {
         return new KeyListener() {
 
             //Faz Nada
@@ -376,8 +409,8 @@ public abstract class Usuario {
                 jCEq.painelLista.removeAll();
 
                 //Monta o objeto para buscar
-            jCEq.equipamento = new Equipamento(jCEq.tfId.getText(), jCEq.tfNome.getText(),
-                    String.valueOf(jCEq.cbQuantidade.getSelectedItem()));
+                jCEq.equipamento = new Equipamento(jCEq.tfId.getText(), jCEq.tfNome.getText(),
+                        String.valueOf(jCEq.cbQuantidade.getSelectedItem()));
 
                 //Busca-o na base de dados
                 ResultSet rs = jCEq.equipamento.select(jCEq.conexao, jCEq.equipamento);

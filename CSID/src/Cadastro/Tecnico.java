@@ -1,7 +1,4 @@
 package Cadastro;
-
-import java.awt.event.ActionListener;
-
 /**
  *
  * @author Daniel
@@ -17,9 +14,5 @@ public class Tecnico extends Usuario{
         janela.exibirInterfaceTecnico();
     }
 
-    @Override
-    public ActionListener cadastrar(JanelaCadastrarUsuarios janela) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
    
 }
