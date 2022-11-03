@@ -1,6 +1,7 @@
 package Cadastro;
 
 import Model.Connection;
+import Solicitacoes.JanelaSolicitar;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
@@ -22,7 +23,7 @@ public class JanelaCadastrarEmbarcacoes implements Janela {
     public Connection conexao;
 
     public JFrame janela;
-    public JPanel painel, painelEsqForm, painelEsqBotoes, painelLista;
+    public JPanel painel, painelEsq1, painelEsqForm, painelEsqBotoes, painelLista;
     public JScrollPane scrollPanel;
     public JLabel lbId, lbNome, lbNumero;
     public JTextField tfId, tfNome, tfNumero;
@@ -38,10 +39,11 @@ public class JanelaCadastrarEmbarcacoes implements Janela {
         janela = new JFrame("Cadastrar Embarcações");
         janela.setBounds(new Rectangle(720, 500));
         janela.setLocationRelativeTo(null);
-        janela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        janela.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         janela.setResizable(false);
 
-        painel = new JPanel(new BorderLayout());
+        painel = new JPanel(new GridLayout(0,2));
+        painelEsq1 = new JPanel(new BorderLayout());
         painelEsqForm = new JPanel(new GridLayout(0, 2));
         painelEsqBotoes = new JPanel();
         painelLista = new JPanel(new GridLayout(0, 1));
@@ -65,7 +67,7 @@ public class JanelaCadastrarEmbarcacoes implements Janela {
     }
 
     @Override
-    public boolean exibirInterfaceCapitao() {
+    public boolean exibirInterfaceComandante() {
         //Adiciona painel de Formulário
         painelEsqForm.add(lbId);
         painelEsqForm.add(tfId);
@@ -77,11 +79,15 @@ public class JanelaCadastrarEmbarcacoes implements Janela {
         tfId.addKeyListener(usuario.pesquisaDinamicaEmbarcacoes(this));
         tfNome.addKeyListener(usuario.pesquisaDinamicaEmbarcacoes(this));
         tfNumero.addKeyListener(usuario.pesquisaDinamicaEmbarcacoes(this));
+        tfNome.addKeyListener(JanelaSolicitar.listener(tfNome, 40));
+        tfNumero.addKeyListener(JanelaSolicitar.dataListener(tfNumero));
 
         scrollPanel.setViewportView(painelLista);
 
-        painel.add(painelEsqForm, BorderLayout.WEST);
-        painel.add(scrollPanel, BorderLayout.CENTER);
+        
+        painelEsq1.add(painelEsqForm, BorderLayout.CENTER);
+        painel.add(painelEsq1);
+        painel.add(scrollPanel);
 
         janela.add(painel);
 
@@ -91,14 +97,16 @@ public class JanelaCadastrarEmbarcacoes implements Janela {
 
     @Override
     public boolean exibirInterfaceTecnico() {
-        exibirInterfaceCapitao();
+        exibirInterfaceComandante();
         return true;
     }
 
     @Override
     public boolean exibirInterfaceAdministrador() {
+        exibirInterfaceTecnico();
+        
         //Adiciona as opções de cadastro e exclusao
-        painel.add(painelEsqBotoes, BorderLayout.SOUTH);
+        painelEsq1.add(painelEsqBotoes, BorderLayout.SOUTH);
 
         btCadastrar = new JButton("Cadastrar");
         btExcluir = new JButton("Excluir");
@@ -109,7 +117,6 @@ public class JanelaCadastrarEmbarcacoes implements Janela {
         btCadastrar.addActionListener(Administrador.cadastrarEmbarcacoes(this));
         btExcluir.addActionListener(Administrador.excluirEmbarcacoes(this));
 
-        exibirInterfaceTecnico();
         return true;
     }
 }

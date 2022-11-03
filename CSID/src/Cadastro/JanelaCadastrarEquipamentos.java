@@ -1,10 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Cadastro;
 
 import Model.Connection;
+import Solicitacoes.JanelaSolicitar;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
@@ -27,7 +24,7 @@ public class JanelaCadastrarEquipamentos implements Janela {
     public Connection conexao;
 
     public JFrame janela;
-    public JPanel painel, painelEsqForm, painelEsqBotoes, painelLista;
+    public JPanel painel, painelEsq1, painelEsqForm, painelEsqBotoes, painelLista;
     public JScrollPane scrollPanel;
     public JLabel lbId, lbNome, lbQuantidade;
     public JTextField tfId, tfNome;
@@ -46,10 +43,11 @@ public class JanelaCadastrarEquipamentos implements Janela {
         janela.setTitle("Cadastrar Equipamentos");
         janela.setBounds(new Rectangle(720, 500));
         janela.setLocationRelativeTo(null);
-        janela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        janela.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         janela.setResizable(false);
 
-        painel = new JPanel(new BorderLayout());
+        painel = new JPanel(new GridLayout(0,2));
+        painelEsq1 = new JPanel(new BorderLayout());
         painelEsqForm = new JPanel(new GridLayout(0, 2));
         painelEsqBotoes = new JPanel();
         painelLista = new JPanel(new GridLayout(0, 1));
@@ -75,7 +73,7 @@ public class JanelaCadastrarEquipamentos implements Janela {
     
     
     @Override
-    public boolean exibirInterfaceCapitao() {
+    public boolean exibirInterfaceComandante() {
         //Adiciona painel de Formulário
         painelEsqForm.add(lbId);
         painelEsqForm.add(tfId);
@@ -91,10 +89,12 @@ public class JanelaCadastrarEquipamentos implements Janela {
 
         tfId.addKeyListener(usuario.pesquisaDinamicaEquipamentos(this));
         tfNome.addKeyListener(usuario.pesquisaDinamicaEquipamentos(this));
+        tfNome.addKeyListener(JanelaSolicitar.listener(tfNome, 50));
 
         scrollPanel.setViewportView(painelLista);
 
-        painel.add(painelEsqForm, BorderLayout.WEST);
+        painelEsq1.add(painelEsqForm, BorderLayout.CENTER);
+        painel.add(painelEsq1);
         painel.add(scrollPanel, BorderLayout.CENTER);
 
         janela.add(painel);
@@ -106,14 +106,16 @@ public class JanelaCadastrarEquipamentos implements Janela {
 
     @Override
     public boolean exibirInterfaceTecnico() {
-        exibirInterfaceCapitao();
+        exibirInterfaceComandante();
         return true;
     }
 
     @Override
     public boolean exibirInterfaceAdministrador() {
+        exibirInterfaceTecnico();
+        
         //Adiciona as opções de cadastro e exclusao
-        painel.add(painelEsqBotoes, BorderLayout.SOUTH);
+        painelEsq1.add(painelEsqBotoes, BorderLayout.SOUTH);
 
         btCadastrar = new JButton("Cadastrar");
         btExcluir = new JButton("Excluir");
@@ -124,7 +126,6 @@ public class JanelaCadastrarEquipamentos implements Janela {
         btCadastrar.addActionListener(Administrador.cadastrarEquipamentos(this));
         btExcluir.addActionListener(Administrador.excluirEquipamentos(this));
 
-        exibirInterfaceTecnico();
         return true;
     }
 

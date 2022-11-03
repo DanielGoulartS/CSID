@@ -65,7 +65,7 @@ public class Connection {
 
     public Statement createStatement() {
         try {
-            return this.connection.createStatement();
+            return this.connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         } catch (SQLException e) {
             System.out.println("Falha na criação do Statement");
             return null;
@@ -91,7 +91,7 @@ public class Connection {
             System.out.println("Execute executada com sucesso.");
             return stmt.execute(sql);
         } catch (SQLException e) {
-            System.err.println(e);
+            System.err.println("Connection.Execute() " + e);
         }
         return false;
     }

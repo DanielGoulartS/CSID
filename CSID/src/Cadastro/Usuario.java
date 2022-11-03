@@ -1,7 +1,8 @@
 package Cadastro;
 
 import Model.Connection;
-import View.JanelaTodasAsSolicitacoes;
+import Solicitacoes.JanelaTodasAsSolicitacoes;
+import Solicitacoes.Solicitacao;
 import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -10,6 +11,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Logger;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -19,130 +21,81 @@ import javax.swing.JTextField;
 public abstract class Usuario {
 
     public int id;
-    public String nome, sobrenome, usuario, senha, cargo;
+    public String nome, sobrenome, email, usuario, senha, cargo;
 
-    public Usuario(int id, String nome, String sobrenome, String usuario, char[] senha, String cargo) {
+    //Métodos da classe usuário
+    public Usuario(int id, String nome, String sobrenome, String email, String usuario, char[] senha, String cargo) {
         this.id = id;
         this.nome = nome;
         this.sobrenome = sobrenome;
+        this.email = email;
         this.usuario = usuario;
         this.senha = String.valueOf(senha);
         this.cargo = cargo.substring(0, 3);
     }
 
-    public Usuario select(Connection conexao, Usuario usuario) {
-
-        System.out.println(conexao.isValid());
-
-        conexao.conectar();
-
-        System.out.println("1");
-        Usuario adm = new Capitao(usuario.id, usuario.nome, usuario.sobrenome,
-                usuario.usuario, usuario.senha.toCharArray(), usuario.cargo);
-
-        System.out.println("2");
-        ResultSet rs = conexao.executeQuery("SELECT * FROM `usuarios` WHERE usuario = '" + usuario.usuario + "' "
-                + "AND senha = '" + usuario.senha + "' ORDER BY `id` ASC;");
-
-        System.out.println("3");
-        try {
-            if (rs.next()) {
-
-                System.out.println("4");
-                switch (rs.getString("cargo")) {
-                    case "Adm":
-                        System.out.println("ADM");
-                        adm = new Administrador(rs.getInt("id"), rs.getString("nome"), rs.getString("sobrenome"),
-                                rs.getString("usuario"), rs.getString("senha").toCharArray(), rs.getString("cargo"));
-                        break;
-                    case "Téc":
-                        System.out.println("TEC");
-                        adm = new Tecnico(rs.getInt("id"), rs.getString("nome"), rs.getString("sobrenome"),
-                                rs.getString("usuario"), rs.getString("senha").toCharArray(), rs.getString("cargo"));
-                        break;
-                    case "Cap":
-                        System.out.println("CAP");
-                        adm = new Capitao(rs.getInt("id"), rs.getString("nome"), rs.getString("sobrenome"),
-                                rs.getString("usuario"), rs.getString("senha").toCharArray(), rs.getString("cargo"));
-                        break;
-                }
-
-            }
-        } catch (SQLException ex) {
-            System.err.println("Exceção em Usuario.select()");
-        }
-        conexao.desconectar();
-        return adm;
-
-    }
-
     public boolean insert(Connection conexao, Usuario usuario) {
 
-        conexao.conectar();
-        boolean result = false;
-
-        ResultSet rs = conexao.executeQuery("SELECT * FROM usuarios WHERE usuario = '" + usuario.usuario + "';");
-
-        try {//Se ja houver este usuário, nao cadastrará
-
-            if (rs.next()) {
-            } else {
-                //Se não houver cadastrará normalmente
-                conexao.execute("INSERT INTO `usuarios`( `nome`, `sobrenome`, `usuario`, `senha`, `cargo`)"
-                        + " VALUES ('" + usuario.nome + "','" + usuario.sobrenome + "','" + usuario.usuario + "','"
-                        + usuario.senha + "','" + usuario.cargo + "');");
-                result = true;
-            }
-        } catch (SQLException ex) {
-            System.err.println("Erro em Classes.Cadastro.Usuario.insert()");
-        }
-
-        conexao.desconectar();
+        boolean result = conexao.execute("INSERT INTO `usuarios`( `nome`, `sobrenome`, `email`,"
+                + " `usuario`, `senha`, `cargo`)"
+                + " VALUES ('" + usuario.nome + "','" + usuario.sobrenome + "','"
+                + usuario.email + "','" + usuario.usuario + "','"
+                + usuario.senha + "','" + usuario.cargo + "');");
 
         return result;
     }
 
     public boolean delete(Connection conexao, Component componente, Usuario usuario) {
 
-        conexao.conectar();
-        boolean result = false;
-
-        ResultSet rs = conexao.executeQuery("SELECT * FROM usuarios WHERE usuario = '" + usuario.usuario + "';");
-        try {
-            if (!rs.next()) {
-                JOptionPane.showMessageDialog(componente, "Nome de Usuário invalido.");
-                return result;
-            }
-        } catch (SQLException ex) {
-            System.err.println("Erro em Classes.Cadastro.Usuario.delete()");
-        }
-
-        if (conexao.execute("DELETE FROM `usuarios` WHERE `nome` = '" + usuario.nome + "'"
+        boolean result = conexao.execute("DELETE FROM `usuarios` WHERE `nome` = '" + usuario.nome + "'"
                 + "AND `sobrenome` = '" + usuario.sobrenome + "'"
-                + "AND `usuario` = '" + usuario.usuario + "';")) {
-            result = true;
-        }
-
-        conexao.desconectar();
+                + "AND `usuario` = '" + usuario.usuario + "';");
 
         return result;
     }
 
-    
-    
-    public ActionListener abrirJanela(Janela janela) {
-        return (ActionEvent e) -> {
-            this.exibir(janela);
-        };
+    public ResultSet selectParaPesquisar(Connection conexao, Usuario usuario) {
+
+        ResultSet rs = conexao.executeQuery("SELECT * FROM `usuarios` WHERE "
+                + "`id` LIKE '%" + usuario.id + "%' AND"
+                + "`nome` LIKE '%" + usuario.nome + "%' AND"
+                + " `sobrenome` LIKE '%" + usuario.sobrenome + "%' AND"
+                + " `email` LIKE '%" + usuario.email + "%' AND"
+                + " `usuario` LIKE '%" + usuario.usuario + "%' ORDER BY `id` ASC;");
+        return rs;
+
     }
 
+    public ResultSet selectPorUsuario(Connection conexao, Usuario usuario) {
+
+        ResultSet rs = conexao.executeQuery("SELECT * FROM `usuarios` WHERE  `usuario` = '" + usuario.usuario + "';");
+        return rs;
+
+    }
+    
+    public ResultSet selectUsuarioPorId(Connection conexao, int usuario) {
+
+        ResultSet rs = conexao.executeQuery("SELECT * FROM `usuarios` WHERE  `id` = '" + usuario + "';");
+        return rs;
+
+    }
+
+    public ResultSet selectPorUsuarioESenha(Connection conexao, Usuario usuario) {
+
+        ResultSet rs = conexao.executeQuery("SELECT * FROM `usuarios` WHERE `usuario` = '" + usuario.usuario + "' AND"
+                + " `senha` = '" + usuario.senha + "' ORDER BY `id` ASC;");
+        return rs;
+
+    }
+
+    //Métodos do Ator Usuario    
     public abstract void exibir(Janela janela);
 
-    public abstract ActionListener cadastrar(JanelaCadastrarUsuarios janela);
-
-    public ActionListener acessar(Entrar entrar) {
+    public ActionListener logIn(JanelaEntrar jE) {
 
         return (ActionEvent e) -> {
+
+            jE.conexao.conectar();
 
             //Cria o painel de Autenticação
             JPanel painelConfirmacao = new JPanel(new GridLayout(0, 1));
@@ -161,30 +114,62 @@ public abstract class Usuario {
             painelConfirmacao.add(painelConfirmacao2);
 
             //Exibe-o
-            JOptionPane.showMessageDialog(entrar.painel, painelConfirmacao, "Login",
+            JOptionPane.showMessageDialog(jE.painel, painelConfirmacao, "Login",
                     JOptionPane.QUESTION_MESSAGE);
 
-            Usuario autenticador = new Administrador(0, "", "", tfUsuarioConfirmacao.getText(),
+            //Cria o usuário para autenticar e busca-o
+            jE.usuario = new Administrador(0, "", "", "", tfUsuarioConfirmacao.getText(),
                     pfSenhaConfirmacao.getPassword(), "000");
 
-            Usuario novoUsuario = autenticador.select(entrar.conexao, autenticador);
+            ResultSet rs = jE.usuario.selectPorUsuarioESenha(jE.conexao, jE.usuario);
 
-            //Se mudar as informações incompativeis, acesse
-            if (!novoUsuario.cargo.equals(autenticador.cargo)) {
+            try {
 
-                novoUsuario.exibir(new JanelaTodasAsSolicitacoes(novoUsuario));
+                //Se houver exatamente este usuário, filtra seu cargo, e monta-o de acordo
+                if (rs.next()) {
+                    switch (rs.getString("cargo")) {
+                        case "Adm":
+                            jE.usuario = new Administrador(rs.getInt("id"), rs.getString("nome"),
+                                    rs.getString("sobrenome"), rs.getString("email"), rs.getString("usuario"),
+                                    rs.getString("senha").toCharArray(), rs.getString("cargo"));
 
-                //se manter cancele
-            } else {
-                System.err.println("Exceção em Usuario.acessar()");
-                JOptionPane.showMessageDialog(entrar.painel, "Falha na autenticação.");
+                            jE.usuario.exibir(new JanelaTodasAsSolicitacoes(jE.usuario));
+
+                            break;
+                        case "Téc":
+                            jE.usuario = new Tecnico(rs.getInt("id"), rs.getString("nome"),
+                                    rs.getString("sobrenome"), rs.getString("email"), rs.getString("usuario"),
+                                    rs.getString("senha").toCharArray(), rs.getString("cargo"));
+
+                            jE.usuario.exibir(new JanelaTodasAsSolicitacoes(jE.usuario));
+
+                            break;
+                        case "Com":
+                            jE.usuario = new Comandante(rs.getInt("id"), rs.getString("nome"),
+                                    rs.getString("sobrenome"), rs.getString("email"), rs.getString("usuario"),
+                                    rs.getString("senha").toCharArray(), rs.getString("cargo"));
+
+                            jE.usuario.exibir(new JanelaTodasAsSolicitacoes(jE.usuario));
+
+                            break;
+                    }
+
+                    //Se não houver, retorna e avisa
+                } else {
+                    JOptionPane.showMessageDialog(jE.painel, "Falha na autenticação. \nNão encontrado.");
+                    return;
+                }
+
+            } catch (SQLException ex) {
+                System.err.println("\n\n Exceção em Cadastro.Usuario.logIn() \n\n" + ex);
             }
+
+            jE.conexao.desconectar();
+            jE.janela.dispose();
         };
     }
 
-    
-    
-    public KeyListener pesquisaDinamicaPortos(JanelaCadastrarPortos jCP) {
+    public KeyListener pesquisaDinamicaUsuarios(JanelaCadastrarUsuarios jCU) {
         return new KeyListener() {
 
             //Faz Nada
@@ -200,46 +185,48 @@ public abstract class Usuario {
             @Override
             public void keyReleased(KeyEvent e) {
                 //Conecta a base de dados
-                jCP.conexao.conectar();
-                jCP.painelLista.removeAll();
+                jCU.conexao.conectar();
+                jCU.painelLista.removeAll();
 
                 //Monta o objeto para buscar
-                jCP.porto = new Porto(jCP.tfId.getText(), jCP.tfTelefone.getText(),
-                        jCP.tfNome.getText(), jCP.tfEndereco.getText(), jCP.tfEmail.getText());
+                jCU.usuario = new Comandante(Integer.parseInt("0" + jCU.tfId.getText()), jCU.tfNome.getText(),
+                        jCU.tfSobrenome.getText(), jCU.tfEmail.getText(), jCU.tfUsuario.getText(),
+                        "0000".toCharArray(), "000");
 
                 //Busca-o na base de dados
-                ResultSet rs = jCP.porto.select(jCP.conexao, jCP.porto);
+                ResultSet rs = jCU.usuario.selectParaPesquisar(jCU.conexao, jCU.usuario);
                 try {
 
                     if (rs.next()) {
                         //Se encontra-los Cria um painel com eles e os adiciona a lista
                         do {
-                            Porto novoP = new Porto(rs.getString("id"), rs.getString("telefone"), rs.getString("nome"),
-                                    rs.getString("endereco"), rs.getString("email"));
+                            Usuario novoU = new Comandante(rs.getInt("id"), rs.getString("nome"),
+                                    rs.getString("sobrenome"), rs.getString("email"), rs.getString("usuario"),
+                                    rs.getString("senha").toCharArray(), rs.getString("cargo"));
 
                             //Monta o cartao de cada Porto
                             JPanel cartao = new JPanel(new GridLayout(0, 1));
-                            cartao.add(new JLabel("Id: " + String.valueOf(novoP.id)));
-                            cartao.add(new JLabel("Nome: " + novoP.nome));
-                            cartao.add(new JLabel("Endereço: " + novoP.endereco));
-                            cartao.add(new JLabel("Telefone: " + novoP.telefone));
-                            cartao.add(new JLabel("E-mail: " + novoP.email));
-                            jCP.painelLista.add(cartao);
-                            jCP.painelLista.add(new JLabel());
+                            cartao.add(new JLabel("Id: " + String.valueOf(novoU.id)));
+                            cartao.add(new JLabel("Usuario: " + novoU.usuario));
+                            cartao.add(new JLabel("Nome: " + novoU.nome + " " + novoU.sobrenome));
+                            cartao.add(new JLabel("Cargo: " + novoU.cargo));
+
+                            jCU.painelLista.add(cartao);
+                            jCU.painelLista.add(new JLabel());
                         } while (rs.next());
 
                     }
 
                 } catch (SQLException ex) {
-                    System.err.println(ex);
                     System.err.println("\n\n1-Exceção em Cadastro.Usuario.PesquisaDinamicaPortos()\n\n.");
+                    System.err.println(ex);
                 }
 
-                jCP.painelLista.setVisible(false);
-                jCP.painelLista.setVisible(true);
+                jCU.painelLista.setVisible(false);
+                jCU.painelLista.setVisible(true);
 
                 //Desonecta a base de dados
-                jCP.conexao.desconectar();
+                jCU.conexao.desconectar();
             }
         };
     }
@@ -300,6 +287,71 @@ public abstract class Usuario {
         };
     }
 
+    public KeyListener pesquisaDinamicaPortos(JanelaCadastrarPortos jCP) {
+        return new KeyListener() {
+
+            //Faz Nada
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+            }
+
+            //Quando solta uma tecla, atualiza o painel com os resultados possíveis
+            @Override
+            public void keyReleased(KeyEvent e) {
+                //Conecta a base de dados
+                jCP.conexao.conectar();
+                jCP.painelLista.removeAll();
+
+                try {
+                    //Monta o objeto para buscar
+                    jCP.porto = new Porto(jCP.tfId.getText(), jCP.tfNome.getText(), 0,
+                            0, jCP.tfTelefone.getText(),
+                            jCP.tfEmail.getText(), jCP.tfRua.getText(), 0,
+                            jCP.tfCidade.getText(), jCP.tfEstado.getText(), jCP.tfPais.getText());
+
+                    //Busca-o na base de dados
+                    ResultSet rs = jCP.porto.select(jCP.conexao, jCP.porto);
+
+                    if (rs.next()) {
+                        //Se encontra-los Cria um painel com eles e os adiciona a lista
+                        do {
+                            Porto novoP = new Porto(rs.getString("id"), rs.getString("nome"),
+                                    rs.getInt("ddi"), rs.getInt("ddd"), rs.getString("telefone"),
+                                    rs.getString("email"), rs.getString("rua"), rs.getInt("numero"),
+                                    rs.getString("cidade"), rs.getString("estado"), rs.getString("pais"));
+
+                            //Monta o cartao de cada Porto
+                            JPanel cartao = new JPanel(new GridLayout(0, 1));
+                            cartao.add(new JLabel("Id: " + String.valueOf(novoP.id)));
+                            cartao.add(new JLabel("Nome: " + novoP.nome));
+                            cartao.add(new JLabel("Telefone: " + novoP.ddi + " " + novoP.ddd + " " +novoP.telefone));
+                            cartao.add(new JLabel("Endereço: " + novoP.rua + " - "+ novoP.numero + ", " 
+                            + novoP.cidade + ", " + novoP.estado + ", " + novoP.pais));
+                            cartao.add(new JLabel("E-mail: " + novoP.email));
+                            jCP.painelLista.add(cartao);
+                            jCP.painelLista.add(new JLabel());
+                        } while (rs.next());
+
+                    }
+
+                } catch (Exception ex) {
+                    System.err.println(ex);
+                    System.err.println("\n\n1-Exceção em Cadastro.Usuario.PesquisaDinamicaPortos()\n\n.");
+                }
+
+                jCP.painelLista.setVisible(false);
+                jCP.painelLista.setVisible(true);
+
+                //Desonecta a base de dados
+                jCP.conexao.desconectar();
+            }
+        };
+    }
+
     public KeyListener pesquisaDinamicaServicos(JanelaCadastrarServicos jCS) {
         return new KeyListener() {
 
@@ -320,7 +372,7 @@ public abstract class Usuario {
                 jCS.painelLista.removeAll();
 
                 //Monta o objeto para buscar
-                jCS.servico = new Servico(jCS.tfId.getText(), jCS.tfNome.getText(), jCS.tfDescricao.getText());
+                jCS.servico = new Servico(jCS.tfId.getText(), jCS.tfNome.getText(), jCS.tfDescricao.getText(),0);
 
                 //Busca-o na base de dados
                 ResultSet rs = jCS.servico.select(jCS.conexao, jCS.servico);
@@ -329,7 +381,8 @@ public abstract class Usuario {
                     if (rs.next()) {
                         //Se encontra-los Cria um painel com eles e os adiciona a lista
                         do {
-                            Servico novoS = new Servico(rs.getString("id"), rs.getString("nome"), rs.getString("descricao"));
+                            Servico novoS = new Servico(rs.getString("id"), rs.getString("nome"),
+                                    rs.getString("descricao"),0);
 
                             //Monta o cartao de cada Embarcação
                             JPanel cartao = new JPanel(new GridLayout(0, 1));
@@ -356,7 +409,7 @@ public abstract class Usuario {
         };
     }
 
-    KeyListener pesquisaDinamicaEquipamentos(JanelaCadastrarEquipamentos jCEq) {
+    public KeyListener pesquisaDinamicaEquipamentos(JanelaCadastrarEquipamentos jCEq) {
         return new KeyListener() {
 
             //Faz Nada
@@ -376,8 +429,8 @@ public abstract class Usuario {
                 jCEq.painelLista.removeAll();
 
                 //Monta o objeto para buscar
-            jCEq.equipamento = new Equipamento(jCEq.tfId.getText(), jCEq.tfNome.getText(),
-                    String.valueOf(jCEq.cbQuantidade.getSelectedItem()));
+                jCEq.equipamento = new Equipamento(jCEq.tfId.getText(), jCEq.tfNome.getText(),
+                        jCEq.cbQuantidade.getSelectedIndex() + 1, 0 );
 
                 //Busca-o na base de dados
                 ResultSet rs = jCEq.equipamento.select(jCEq.conexao, jCEq.equipamento);
@@ -387,7 +440,7 @@ public abstract class Usuario {
                         //Se encontra-los Cria um painel com eles e os adiciona a lista
                         do {
                             Equipamento novoE = new Equipamento(rs.getString("id"), rs.getString("nome"),
-                                    rs.getString("quantidade"));
+                                    rs.getInt("quantidade"), 0 );
 
                             //Monta o cartao de cada Equipamento
                             JPanel cartao = new JPanel(new GridLayout(0, 1));
@@ -413,4 +466,137 @@ public abstract class Usuario {
             }
         };
     }
+
+    public void verSolicitacoes(JanelaTodasAsSolicitacoes jTAS) {
+        jTAS.conexao.conectar();
+        jTAS.painelSolicitacoes.removeAll();
+        jTAS.painelMeusServicos.removeAll();
+        jTAS.painelMinhasSolicitacoes.removeAll();
+        
+        //Busca todas as solicitacoes
+        ResultSet rs = jTAS.solicitacao.selectAll(jTAS.conexao);
+        try {
+            //Se houver ao menos uma
+            if(rs.next()){
+            //Para cada uma exibe-a num painel alocado na scroll principal
+                do{
+                    Solicitacao novaSolicitacao = new Solicitacao(rs.getInt("id"), rs.getInt("encarregado"), 
+                            rs.getString("inicio"), rs.getString("fim"), rs.getInt("solicitante"), 
+                            rs.getString("embarcacao"), rs.getString("porto"), rs.getString("obs"));
+        
+                
+                jTAS.painelSolicitacoes.add(jTAS.novoPainel(novaSolicitacao));
+                }while(rs.next());
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger("Usuario.verSolicitacoes()" + ex);
+        }
+        //exibe o scrollpane
+        jTAS.scrollPane.setViewportView(jTAS.painelSolicitacoes);
+        jTAS.conexao.desconectar();
+    }
+
+    public void verMinhasSolicitacoes(JanelaTodasAsSolicitacoes jTAS) {
+        jTAS.conexao.conectar();
+        
+        jTAS.painelSolicitacoes.removeAll();
+        jTAS.painelMeusServicos.removeAll();
+        jTAS.painelMinhasSolicitacoes.removeAll();
+        //Busca as solicitacoes
+        ResultSet rs = jTAS.solicitacao.selectPorSolicitante(jTAS.conexao, jTAS.usuario);
+        try {
+            //Se houver ao menos uma
+            if(rs.next()){
+            //Para cada uma exibe-a num painel alocado na scroll principal
+                do{
+                    Solicitacao novaSolicitacao = new Solicitacao(rs.getInt("id"), rs.getInt("encarregado"), 
+                            rs.getString("inicio"), rs.getString("fim"), rs.getInt("solicitante"), 
+                            rs.getString("embarcacao"), rs.getString("porto"), rs.getString("obs"));
+                
+                jTAS.painelMinhasSolicitacoes.add(jTAS.novoPainel(novaSolicitacao));
+                }while(rs.next());
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger("Usuario.verMinhasSolicitacoes()" + ex);
+        }
+        //exibe o scrollpane
+        jTAS.scrollPane.setViewportView(jTAS.painelMinhasSolicitacoes);
+        jTAS.conexao.desconectar();
+    }
+
+    public boolean excluirSolicitacao(Solicitacao solicitacao, JanelaTodasAsSolicitacoes jTAS ) {
+
+        jTAS.conexao.conectar();
+        
+        ResultSet rsSolicitacao = solicitacao.selectPorId(jTAS.conexao, solicitacao);
+        
+        try {
+            if(rsSolicitacao.next()){
+                //0 = YES, 1 = NO, 2 = CANCEL
+                int permit = JOptionPane.showConfirmDialog(jTAS.janela,"A Solicitação foi atendida com sucesso?\n\n"
+                        + "(YES, SIM): O Sistema dará baixa nos equipamentos utilizados.\n"
+                        + "(NO, NÃO): Os Equipamentos serão devolvidos ao estoque.\n"
+                        + "(CANCEL, CANCELAR): Aborta a operação.\n\n"
+                        + "(Uma vez executada, esta ação não pode ser desfeita.)\n"
+                        + "(O cliente (solicitante) NÃO RECEBERÁ uma notificação desta atividade.)\n",
+                                "Excluir Solicitação", JOptionPane.YES_NO_CANCEL_OPTION);
+                
+                if (permit == 0) {//YES
+
+                    solicitacao.delete(jTAS.conexao, solicitacao);
+                    //Apaga os Equipamentos Vinculados a esta solicitação
+                    //Recupera os equipamentos pedidos nesta solicitacao
+                    Equipamento equipamento = new Equipamento("", "", 0, solicitacao.id);
+                    ResultSet rsEquipamentosPedidos = equipamento.selectPorSolicitacao(jTAS.conexao, solicitacao);
+
+                    while (rsEquipamentosPedidos.next()) {//Para cada um dos equipamentos pedidos
+                        equipamento = new Equipamento(rsEquipamentosPedidos.getString("id"), "",
+                                rsEquipamentosPedidos.getInt("quantidade"), rsEquipamentosPedidos.getInt("solicitacao"));
+
+                        equipamento.deleteEquipamentoSolicitado(jTAS.conexao, solicitacao);
+
+                    }
+                    return true;
+
+                } else if (permit == 1) {//NO
+
+                    solicitacao.delete(jTAS.conexao, solicitacao);
+                    //Devolver Itens ao banco
+                    //Recupera os equipamentos pedidos nesta solicitacao
+                    Equipamento equipamento = new Equipamento("", "", 0, solicitacao.id);
+                    ResultSet rsEquipamentosPedidos = equipamento.selectPorSolicitacao(jTAS.conexao, solicitacao);
+
+                    while (rsEquipamentosPedidos.next()) {//Para cada um dos equipamentos pedidos
+                        equipamento = new Equipamento(rsEquipamentosPedidos.getString("id"), "",
+                                rsEquipamentosPedidos.getInt("quantidade"), rsEquipamentosPedidos.getInt("solicitacao"));
+                        //Busca os equipamentos originais correspondentes pelo id
+                        ResultSet rsRegistroDeEquipamento = equipamento.selectPorId(jTAS.conexao, equipamento);
+                        if (rsRegistroDeEquipamento.next()) {
+                            int quantidadeSomada = equipamento.quantidade + rsRegistroDeEquipamento.getInt("quantidade");
+                            equipamento.quantidade = quantidadeSomada;
+                            equipamento.alterQuantidadePorId(jTAS.conexao, equipamento);//Devolve-os
+                        }
+                    }
+                    return true;
+
+                } else if (permit == 2) {//CANCEL
+                    return false;
+                }
+
+                JOptionPane.showMessageDialog(jTAS.janela, "Excluído Permanentemente.",
+                        "Excluir Solicitação", JOptionPane.OK_OPTION);
+
+                jTAS.conexao.desconectar();
+            } else {
+                JOptionPane.showConfirmDialog(jTAS.janela, "Solicitação não encontrada, talvez já tenha sido excluída.",
+                        "Falha",JOptionPane.OK_OPTION);
+            }
+        } catch (SQLException ex) {
+            System.err.println("Cadastro.Usuario.excluirSolicitacao(). " + ex);
+        }
+        return false;
+
+    }
+
+    
 }

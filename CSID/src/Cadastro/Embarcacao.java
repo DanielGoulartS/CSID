@@ -18,19 +18,15 @@ public class Embarcacao {
     }
     
     public boolean insert(Connection conexao, Embarcacao embarcacao){
-        conexao.conectar();
         boolean permit;
         permit = conexao.execute("INSERT INTO `navios`( `nome`, `numero`) VALUES"
                 + " ( '" + embarcacao.nome + "','" + embarcacao.numero + "');");
 
-        conexao.desconectar();
 
         return permit;
     }
     
     public boolean delete(Connection conexao, Embarcacao embarcacao){
- 
-        conexao.conectar();
         boolean result = false;
 
         if (conexao.execute("DELETE FROM navios WHERE "
@@ -39,8 +35,6 @@ public class Embarcacao {
                 + "%' AND `numero` LIKE '%" + embarcacao.numero + "%';")) {
             result = true;
         }
-
-        conexao.desconectar();
 
         return result;
     }
@@ -52,6 +46,14 @@ public class Embarcacao {
                 + "`id` LIKE '%" + embarcacao.id 
                 + "%' AND `nome` LIKE '%" + embarcacao.nome
                 + "%' AND `numero` LIKE '%" + embarcacao.numero + "%' ORDER BY `id` ASC;");
+
+        return rs;
+    }
+    
+    public ResultSet selectPorId(Connection conexao, Embarcacao embarcacao){
+        ResultSet rs;
+
+        rs = conexao.executeQuery("SELECT * FROM navios WHERE `id` = '" + embarcacao.id + "';");
 
         return rs;
     }

@@ -1,6 +1,7 @@
 package Cadastro;
 
 import Model.Connection;
+import Solicitacoes.JanelaSolicitar;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
@@ -22,7 +23,7 @@ public class JanelaCadastrarServicos implements Janela {
     public Connection conexao;
 
     public JFrame janela;
-    public JPanel painel, painelEsqForm, painelEsqBotoes, painelLista;
+    public JPanel painel, painelEsq1, painelEsqForm, painelEsqBotoes, painelLista;
     public JScrollPane scrollPanel;
     public JLabel lbId, lbNome, lbDescricao;
     public JTextField tfId, tfNome, tfDescricao;
@@ -40,10 +41,11 @@ public class JanelaCadastrarServicos implements Janela {
         janela.setTitle("Cadastrar Serviços");
         janela.setBounds(new Rectangle(720, 500));
         janela.setLocationRelativeTo(null);
-        janela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        janela.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         janela.setResizable(false);
 
-        painel = new JPanel(new BorderLayout());
+        painel = new JPanel(new GridLayout(0,2));
+        painelEsq1 = new JPanel(new BorderLayout());
         painelEsqForm = new JPanel(new GridLayout(0, 2));
         painelEsqBotoes = new JPanel();
         painelLista = new JPanel(new GridLayout(0, 1));
@@ -69,7 +71,7 @@ public class JanelaCadastrarServicos implements Janela {
     }
 
     @Override
-    public boolean exibirInterfaceCapitao() {
+    public boolean exibirInterfaceComandante() {
         //Adiciona painel de Formulário
         painelEsqForm.add(lbId);
         painelEsqForm.add(tfId);
@@ -81,11 +83,15 @@ public class JanelaCadastrarServicos implements Janela {
         tfId.addKeyListener(usuario.pesquisaDinamicaServicos(this));
         tfNome.addKeyListener(usuario.pesquisaDinamicaServicos(this));
         tfDescricao.addKeyListener(usuario.pesquisaDinamicaServicos(this));
+        
+        tfNome.addKeyListener(JanelaSolicitar.listener(tfNome, 40));
+        tfDescricao.addKeyListener(JanelaSolicitar.listener(tfDescricao, 150));
 
         scrollPanel.setViewportView(painelLista);
 
-        painel.add(painelEsqForm, BorderLayout.WEST);
-        painel.add(scrollPanel, BorderLayout.CENTER);
+        painelEsq1.add(painelEsqForm, BorderLayout.CENTER);
+        painel.add(painelEsq1);
+        painel.add(scrollPanel);
 
         janela.add(painel);
 
@@ -96,14 +102,14 @@ public class JanelaCadastrarServicos implements Janela {
 
     @Override
     public boolean exibirInterfaceTecnico() {
-        exibirInterfaceCapitao();
+        exibirInterfaceComandante();
         return true;
     }
 
     @Override
     public boolean exibirInterfaceAdministrador() {
         //Adiciona as opções de cadastro e exclusao
-        painel.add(painelEsqBotoes, BorderLayout.SOUTH);
+        painelEsq1.add(painelEsqBotoes, BorderLayout.SOUTH);
 
         btCadastrar = new JButton("Cadastrar");
         btExcluir = new JButton("Excluir");

@@ -1,6 +1,7 @@
 package Cadastro;
 
 import Model.Connection;
+import Solicitacoes.Solicitacao;
 import java.sql.ResultSet;
 
 /**
@@ -9,37 +10,31 @@ import java.sql.ResultSet;
  */
 public class Equipamento {
 
-    String id, nome, quantidade;
+    public int  quantidade, solicitacao;
+    public String id, nome;
 
-    public Equipamento(String id, String nome, String quantidade) {
+    public Equipamento(String id, String nome, int quantidade, int solicitacao) {
         this.id = id;
         this.nome = nome;
         this.quantidade = quantidade;
+        this.solicitacao = solicitacao;
     }
 
+    //Cadastro
     public boolean insert(Connection conexao, Equipamento equipamento) {
-        conexao.conectar();
         boolean permit;
         permit = conexao.execute("INSERT INTO `equipamentos`(`nome`, `quantidade`)"
                 + " VALUES ('" + equipamento.nome + "','" + equipamento.quantidade + "');");
-
-        conexao.desconectar();
 
         return permit;
     }
 
     public boolean delete(Connection conexao, Equipamento equipamento) {
-
-        conexao.conectar();
         boolean result = false;
 
-        if (conexao.execute("DELETE FROM equipamentos WHERE "
-                + "`id` LIKE '%" + equipamento.id
-                + "%' AND `nome` LIKE '%" + equipamento.nome + "%' ;")) {
+        if (conexao.execute("DELETE FROM equipamentos WHERE `id` = '" + equipamento.id + "';")) {
             result = true;
         }
-
-        conexao.desconectar();
 
         return result;
     }
@@ -55,16 +50,73 @@ public class Equipamento {
         return rs;
     }
 
-    public boolean alter(Connection conexao, Equipamento equipamento) {
+    public ResultSet selectDisponiveis(Connection conexao, Equipamento equipamento) {
 
-        conexao.conectar();
+        ResultSet rs;
+
+        rs = conexao.executeQuery("SELECT * FROM equipamentos WHERE `id` LIKE '%" + equipamento.id
+                + "%' AND `nome` LIKE '%" + equipamento.nome + "%' AND `quantidade` > 0 ORDER BY `id` ASC;");
+
+        return rs;
+    }
+   
+    public ResultSet selectPorId(Connection conexao, Equipamento equipamento) {
+
+        ResultSet rs;
+
+        rs = conexao.executeQuery("SELECT * FROM equipamentos WHERE "
+                + "`id` = '" + equipamento.id + "';");
+
+        return rs;
+    }
+
+    public boolean alterQuantidadePorId(Connection conexao, Equipamento equipamento) {
         boolean result;
 
         result = conexao.execute("UPDATE `equipamentos` SET `quantidade` = '" + equipamento.quantidade + "' WHERE "
-                + "`nome` LIKE '%" + equipamento.nome + "%' AND `id` LIKE '%" + equipamento.id + "%';");
+                + "`id` = '" + equipamento.id + "';");
 
-        conexao.desconectar();
         return result;
+    }
+
+    //Solicitacao
+    public boolean insertEquipamentoSolicitado(Connection conexao, Equipamento equipamento, Solicitacao solicitacao) {
+        boolean permit;
+        permit = conexao.execute("INSERT INTO `equipamentos_solicitados`(`solicitacao`, `id`, `quantidade`)"
+                + " VALUES ('"+ solicitacao.id + "','" + equipamento.id + "','" + equipamento.quantidade + "');");
+
+        return permit;
+    }
+    
+    public boolean deleteEquipamentoSolicitado(Connection conexao, Solicitacao solicitacao) {
+        boolean result = false;
+
+        if (conexao.execute("DELETE FROM equipamentos_solicitados WHERE "
+                + " `solicitacao` = '" + solicitacao.id + "' ;")) {
+            result = true;
+        }
+
+        return result;
+    }
+    
+    public ResultSet selectPorSolicitacao(Connection conexao, Solicitacao solicitacao) {
+
+        ResultSet rs;
+
+        rs = conexao.executeQuery("SELECT * FROM equipamentos_solicitados WHERE "
+                + "`solicitacao` = '" + solicitacao.id + "' ORDER BY `id` ASC;");
+
+        return rs;
+    }
+    
+    public ResultSet selectSolicitadoPorId(Connection conexao, Equipamento equipamento) {
+
+        ResultSet rs;
+
+        rs = conexao.executeQuery("SELECT `solicitacao` FROM equipamentos_solicitados WHERE "
+                + "`id` = '" + equipamento.id + "' ORDER BY `id` ASC;");
+
+        return rs;
     }
 
 }
