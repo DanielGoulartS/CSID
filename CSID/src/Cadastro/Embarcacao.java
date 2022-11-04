@@ -58,4 +58,12 @@ public class Embarcacao {
         return rs;
     }
     
+    public ResultSet selectSolicitadaPorId(Connection conexao, Embarcacao embarcacao){
+        ResultSet rs;
+
+        rs = conexao.executeQuery("SELECT * FROM solicitacao WHERE `embarcacao` = '" + embarcacao.id + "';");
+
+        return rs;
+    }
+    
 }

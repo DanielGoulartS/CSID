@@ -27,7 +27,7 @@ public class Connection {
             //Está?
             valid = this.connection.isValid(10);
             if (valid) {
-                System.out.println("Conectado!");
+                //System.out.println("Conectado!");
             }
 
         } catch (SQLException e) {
@@ -44,9 +44,9 @@ public class Connection {
             if (!this.connection.isClosed()) {
                 this.connection.close();
             }
-            System.out.println("Desconectado!");
+            //System.out.println("Desconectado!");
         } catch (SQLException e) {
-            System.out.println("Erro ao Desconectar!");
+            System.err.println("Erro ao Desconectar! " + e);
             return false;
         }
         return true;
@@ -67,7 +67,7 @@ public class Connection {
         try {
             return this.connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         } catch (SQLException e) {
-            System.out.println("Falha na criação do Statement");
+            System.err.println("Falha na criação do Statement");
             return null;
         }
     }
@@ -76,7 +76,7 @@ public class Connection {
 
         try {
             Statement stmt = createStatement();
-            System.out.println("ExecuteQuery executada com sucesso.");
+            //System.out.println("ExecuteQuery executada com sucesso.");
             return stmt.executeQuery(sql);
         } catch (SQLException e) {
             System.err.println(e);

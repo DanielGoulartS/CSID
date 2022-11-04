@@ -76,11 +76,13 @@ public final class JanelaCadastrarUsuarios implements Janela {
         pfConfirmarSenha = new JPasswordField();
         
         
+        tfId.addKeyListener(JanelaSolicitar.listener(tfId, 40));
         tfUsuario.addKeyListener(JanelaSolicitar.listener(tfUsuario, 40));
         tfNome.addKeyListener(JanelaSolicitar.listener(tfNome, 40));
         tfSobrenome.addKeyListener(JanelaSolicitar.listener(tfSobrenome, 40));
         tfEmail.addKeyListener(JanelaSolicitar.listener(tfEmail, 40));
         pfSenha.addKeyListener(JanelaSolicitar.listener(pfSenha, 40));
+        pfConfirmarSenha.addKeyListener(JanelaSolicitar.listener(pfConfirmarSenha, 40));
         
         
         //Exibição

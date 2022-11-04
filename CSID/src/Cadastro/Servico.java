@@ -94,4 +94,12 @@ public class Servico {
         return rs;
     }
 
+    public ResultSet selectSolicitadoPorId(Connection conexao, Servico servico) {
+        ResultSet rs;
+
+        rs = conexao.executeQuery("SELECT * FROM servicos_solicitados WHERE `id` = '" + servico.id + "' ;");
+
+        return rs;
+    }
+
 }

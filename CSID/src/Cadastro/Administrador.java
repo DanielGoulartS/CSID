@@ -1,5 +1,6 @@
 package Cadastro;
 
+import Solicitacoes.JanelaSolicitar;
 import Solicitacoes.Solicitacao;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -47,6 +48,8 @@ public class Administrador extends Tecnico {
             JTextField tfUsuarioConfirmacao = new JTextField();
             JPasswordField pfSenhaConfirmacao = new JPasswordField();
 
+            tfUsuarioConfirmacao.addKeyListener(JanelaSolicitar.listener(tfUsuarioConfirmacao, 40));
+            pfSenhaConfirmacao.addKeyListener(JanelaSolicitar.listener(pfSenhaConfirmacao, 40));
             painelConfirmacao1.add(lbUsuarioConfirmacao);
             painelConfirmacao1.add(tfUsuarioConfirmacao);
             painelConfirmacao2.add(lbSenhaConfirmacao);
@@ -124,18 +127,44 @@ public class Administrador extends Tecnico {
             jCU.conexao.conectar();
 
             //0 = YES, 1 = NO
-            int permit = JOptionPane.showConfirmDialog(jCU.janela, "Confirme os dados, e principalmente o ID."
+            int permition = JOptionPane.showConfirmDialog(jCU.janela, "Confirme os dados, e principalmente o ID."
                     + "\nUma vez executada, esta ação não poderá ser desfeita."
                     + "\nDeseja continuar?",
                     "Excluir Usuário", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
-            if (permit == 0) {
+            if (permition == 0) {
                 //Monta o usuário para Excluir
                 jCU.usuario = new Comandante(Integer.parseInt(jCU.tfId.getText()),
                         jCU.tfNome.getText(), jCU.tfSobrenome.getText(), jCU.tfEmail.getText(),
                         jCU.tfUsuario.getText().replaceAll(" ", ""), jCU.pfSenha.getPassword(),
                         jCU.cbCargo.getSelectedItem().toString());
 
+                                        
+            //Verifica se já está em uso e oferece opção de cancelar
+            ResultSet rsSolicitacoes = jCU.usuario.selectSolicitadoPorId(jCU.conexao, jCU.usuario);
+            String solicitacoes = "";
+            
+            try {
+                while(rsSolicitacoes.next()){
+                    solicitacoes += rsSolicitacoes.getString("id") + ", "; //Id da Solicitacao
+                }
+            } catch (SQLException ex) {
+                 System.err.println(Administrador.class.getName() + " " + ex);
+            }
+            if(!rsSolicitacoes.equals("")){
+                //0 = YES, 1 = NO
+                int permit = JOptionPane.showConfirmDialog(jCU.janela, "Este item está presente nas solicitações:\n"
+                        + solicitacoes + "\n e ao executar esta ação será impossível identifica-lo nas mesmas.\n"
+                        + "Deseja Prosseguir mesmo assim?\n"
+                        + "(Se prosseguir, é recomendavel avisar os solicitantes e responsáveis das"
+                        + "solicitações mencionadas acima.)\n",
+                        "Deseja Prosseguir?", JOptionPane.YES_NO_OPTION);
+                if(permit == 1){
+                    return;
+                }
+            }
+            
+                
                 //Busca o usuário pelo nome de usuário
                 ResultSet rs = jCU.usuario.selectPorUsuario(jCU.conexao, jCU.usuario);
 
@@ -191,6 +220,32 @@ public class Administrador extends Tecnico {
             jCE.embarcacao = new Embarcacao(jCE.tfId.getText(), jCE.tfNome.getText().replaceAll(" ", ""), 
                     jCE.tfNumero.getText());
 
+                        
+            //Verifica se já está em uso e oferece opção de cancelar
+            ResultSet rsSolicitacoes = jCE.embarcacao.selectSolicitadaPorId(jCE.conexao, jCE.embarcacao);
+            String solicitacoes = "";
+            
+            try {
+                while(rsSolicitacoes.next()){
+                    solicitacoes += rsSolicitacoes.getString("id") + ", "; //Id da Solicitacao
+                }
+            } catch (SQLException ex) {
+                 System.err.println(Administrador.class.getName() + " " + ex);
+            }
+            if(!rsSolicitacoes.equals("")){
+                //0 = YES, 1 = NO
+                int permit = JOptionPane.showConfirmDialog(jCE.janela, "Este item está presente nas solicitações:\n"
+                        + solicitacoes + "\n e ao executar esta ação será impossível identifica-lo nas mesmas.\n"
+                        + "Deseja Prosseguir mesmo assim?\n"
+                        + "(Se prosseguir, é recomendavel avisar os solicitantes e responsáveis das"
+                        + "solicitações mencionadas acima.)\n",
+                        "Deseja Prosseguir?", JOptionPane.YES_NO_OPTION);
+                if(permit == 1){
+                    return;
+                }
+            }
+            
+                        
             //Busca-o na base de dados
             ResultSet rs = jCE.embarcacao.select(jCE.conexao, jCE.embarcacao);
             try {
@@ -278,6 +333,31 @@ public class Administrador extends Tecnico {
                     Integer.parseInt(jCP.tfDdd.getText()), jCP.tfTelefone.getText(),
                     jCP.tfEmail.getText(), jCP.tfRua.getText(), Integer.parseInt(jCP.tfNumero.getText()),
                     jCP.tfCidade.getText(), jCP.tfEstado.getText(),jCP.tfPais.getText());
+            
+            //Verifica se já está em uso e oferece opção de cancelar
+            ResultSet rsSolicitacoes = jCP.porto.selectSolicitadoPorId(jCP.conexao, jCP.porto);
+            String solicitacoes = "";
+            
+            try {
+                while(rsSolicitacoes.next()){
+                    solicitacoes += rsSolicitacoes.getString("id") + ", "; //Id da Solicitacao
+                }
+            } catch (SQLException ex) {
+                 System.err.println(Administrador.class.getName() + " " + ex);
+            }
+            if(!rsSolicitacoes.equals("")){
+                //0 = YES, 1 = NO
+                int permit = JOptionPane.showConfirmDialog(jCP.janela, "Este item está presente nas solicitações:\n"
+                        + solicitacoes + "\n e ao executar esta ação será impossível identifica-lo nas mesmas.\n"
+                        + "Deseja Prosseguir mesmo assim?\n"
+                        + "(Se prosseguir, é recomendavel avisar os solicitantes e responsáveis das"
+                        + "solicitações mencionadas acima.)\n",
+                        "Deseja Prosseguir?", JOptionPane.YES_NO_OPTION);
+                if(permit == 1){
+                    return;
+                }
+            }
+            
 
             //Busca-o na base de dados
             ResultSet rs = jCP.porto.select(jCP.conexao, jCP.porto);
@@ -337,7 +417,31 @@ public class Administrador extends Tecnico {
 
             //Monta o objeto para excluir Servico
             jCS.servico = new Servico(jCS.tfId.getText(), jCS.tfNome.getText(), jCS.tfDescricao.getText(),0);
-
+            
+            //Verifica se já está em uso e oferece opção de cancelar
+            ResultSet rsSolicitacoes = jCS.servico.selectSolicitadoPorId(jCS.conexao, jCS.servico);
+            String solicitacoes = "";
+            
+            try {
+                while(rsSolicitacoes.next()){
+                    solicitacoes += rsSolicitacoes.getString("solicitacao") + ", ";
+                }
+            } catch (SQLException ex) {
+                 System.err.println(Administrador.class.getName() + " " + ex);
+            }
+            if(!rsSolicitacoes.equals("")){
+                //0 = YES, 1 = NO
+                int permit = JOptionPane.showConfirmDialog(jCS.janela, "Este item está presente nas solicitações:\n"
+                        + solicitacoes + "\n e ao executar esta ação será impossível identifica-lo nas mesmas.\n"
+                        + "Deseja Prosseguir mesmo assim?\n"
+                        + "(Se prosseguir, é recomendavel avisar os solicitantes e responsáveis das"
+                        + "solicitações mencionadas acima.)\n",
+                        "Deseja Prosseguir?", JOptionPane.YES_NO_OPTION);
+                if(permit == 1){
+                    return;
+                }
+            }
+            
             //Busca-o na base de dados
             ResultSet rs = jCS.servico.select(jCS.conexao, jCS.servico);
             try {
@@ -446,9 +550,10 @@ public class Administrador extends Tecnico {
             if(!rsSolicitacoes.equals("")){
                 //0 = YES, 1 = NO
                 int permit = JOptionPane.showConfirmDialog(jCEq.janela, "Este item está presente nas solicitações:\n"
-                        + solicitacoes + " e ao executar esta ação será impossível identifica-lo nas mesmas.\n"
+                        + solicitacoes + "\n e ao executar esta ação será impossível identifica-lo nas mesmas.\n"
                         + "Deseja Prosseguir mesmo assim?\n"
-                        + "(Se prosseguir, é recomendavel avisar os solicitantes e responsáveis.)\n",
+                        + "(Se prosseguir, é recomendavel avisar os solicitantes e responsáveis das"
+                        + "solicitações mencionadas acima.)\n",
                         "Deseja Prosseguir?", JOptionPane.YES_NO_OPTION);
                 if(permit == 1){
                     return;

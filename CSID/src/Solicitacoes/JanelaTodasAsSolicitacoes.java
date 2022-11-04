@@ -106,7 +106,6 @@ public final class JanelaTodasAsSolicitacoes implements Janela {
 
     public JPanel novoPainel(Solicitacao solicitacao) throws SQLException {
         //Recupera o nome de usuario do encarregado
-System.out.println("novoPainel");
         String encarregadoNome = "Encarregado: ";
         if (solicitacao.encarregado != 0) {
             ResultSet rsUser = usuario.selectUsuarioPorId(conexao, solicitacao.encarregado);

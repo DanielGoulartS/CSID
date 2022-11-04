@@ -96,4 +96,12 @@ public class Porto {
         return rs;
     }
 
+    public ResultSet selectSolicitadoPorId(Connection conexao, Porto porto){
+        ResultSet rs;
+
+        rs = conexao.executeQuery("SELECT * FROM solicitacao WHERE `porto` = '" + porto.id + "';");
+
+        return rs;
+    }
+
 }

@@ -1,6 +1,7 @@
 package Cadastro;
 
 import Model.Connection;
+import Solicitacoes.JanelaSolicitar;
 import Solicitacoes.JanelaTodasAsSolicitacoes;
 import Solicitacoes.Solicitacao;
 import java.awt.Component;
@@ -88,6 +89,14 @@ public abstract class Usuario {
 
     }
 
+    public ResultSet selectSolicitadoPorId(Connection conexao, Usuario usuario) {
+
+        ResultSet rs = conexao.executeQuery("SELECT * FROM `solicitacao` WHERE `encarregado` = '" + usuario.id + "' "
+                + "OR `solicitante` = '" + usuario.id + "' ORDER BY `id` ASC;");
+        return rs;
+
+    }
+
     //Métodos do Ator Usuario    
     public abstract void exibir(Janela janela);
 
@@ -106,6 +115,8 @@ public abstract class Usuario {
             JTextField tfUsuarioConfirmacao = new JTextField();
             JPasswordField pfSenhaConfirmacao = new JPasswordField();
 
+            tfUsuarioConfirmacao.addKeyListener(JanelaSolicitar.listener(tfUsuarioConfirmacao, 40));
+            pfSenhaConfirmacao.addKeyListener(JanelaSolicitar.listener(pfSenhaConfirmacao, 40));
             painelConfirmacao1.add(lbUsuarioConfirmacao);
             painelConfirmacao1.add(tfUsuarioConfirmacao);
             painelConfirmacao2.add(lbSenhaConfirmacao);
