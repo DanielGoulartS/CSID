@@ -342,7 +342,6 @@ public final class JanelaSolicitar implements Janela {
     public static KeyListener listener(JTextField tf, int tamanho) {
         return new KeyAdapter() {
             public void keyTyped(KeyEvent e) {
-                System.out.println(e.getKeyChar());
                 if (Character.valueOf(e.getKeyChar()).toString().equals("'")
                         || Character.valueOf(e.getKeyChar()).toString().equals("\"")) {
                     e.consume();
