@@ -34,8 +34,10 @@ public class Comandante extends Usuario {
             //Solicita preenchimento caso as datas estejam vazias
             if(jS.tfInicio.getText().equals("") || jS.tfFim.getText().equals("") ||
                     jS.tfInicio.getText().equals("  /  /    ") || 
-                    jS.tfFim.getText().equals("  /  /    ")){
-                JOptionPane.showMessageDialog(jS.janela, "Preencha devidamente ao menos as datas!", "Atenção",
+                    jS.tfFim.getText().equals("  /  /    ") ||
+                    jS.comboPorto.getSelectedIndex() == -1 || jS.comboEmbarcacao.getSelectedIndex() == -1){
+                JOptionPane.showMessageDialog(jS.janela, "Preencha devidamente ao menos as datas, Porto e Embarcação!",
+                        "Atenção",
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
