@@ -80,9 +80,9 @@ public class JanelaCadastrarServicos implements Janela {
         painelEsqForm.add(lbDescricao);
         painelEsqForm.add(tfDescricao);
 
-        tfId.addKeyListener(usuario.pesquisaDinamicaServicos(this));
-        tfNome.addKeyListener(usuario.pesquisaDinamicaServicos(this));
-        tfDescricao.addKeyListener(usuario.pesquisaDinamicaServicos(this));
+        tfId.addKeyListener(Comandante.pesquisaDinamicaServicos(this));
+        tfNome.addKeyListener(Comandante.pesquisaDinamicaServicos(this));
+        tfDescricao.addKeyListener(Comandante.pesquisaDinamicaServicos(this));
         
         tfNome.addKeyListener(JanelaSolicitar.listener(tfNome, 40));
         tfDescricao.addKeyListener(JanelaSolicitar.listener(tfDescricao, 150));

@@ -87,8 +87,8 @@ public class JanelaCadastrarEquipamentos implements Janela {
             cbQuantidade.addItem(i);
         }
 
-        tfId.addKeyListener(usuario.pesquisaDinamicaEquipamentos(this));
-        tfNome.addKeyListener(usuario.pesquisaDinamicaEquipamentos(this));
+        tfId.addKeyListener(Comandante.pesquisaDinamicaEquipamentos(this));
+        tfNome.addKeyListener(Comandante.pesquisaDinamicaEquipamentos(this));
         tfNome.addKeyListener(JanelaSolicitar.listener(tfNome, 50));
 
         scrollPanel.setViewportView(painelLista);

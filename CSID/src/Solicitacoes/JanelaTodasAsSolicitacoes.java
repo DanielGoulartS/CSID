@@ -1,5 +1,6 @@
 package Solicitacoes;
 
+import Cadastro.Comandante;
 import Cadastro.Embarcacao;
 import Cadastro.Equipamento;
 import Cadastro.Janela;
@@ -209,7 +210,7 @@ public final class JanelaTodasAsSolicitacoes implements Janela {
         //Funcionalidade
         btAceitar.addActionListener(Tecnico.aceitarSolicitacao(lbEncarregado, solicitacao, btAceitar, this));
         btRecusar.addActionListener((e) -> {
-            if(usuario.excluirSolicitacao(solicitacao, this)){
+            if(Comandante.excluirSolicitacao(solicitacao, this)){
                 painel0.setVisible(false);
                 painel0.add(new JLabel("Solicitacao Excluída."));
             }
@@ -281,12 +282,12 @@ public final class JanelaTodasAsSolicitacoes implements Janela {
         //Item Todas as Solicitacoes
         menuServicos.add(menuServicosTodasAsSolicitacoes);
         menuServicosTodasAsSolicitacoes.addActionListener((e) -> {
-                usuario.verSolicitacoes(this);
+                Comandante.verSolicitacoes(this);
         });
         //Item Minhas Solicitacoes
         menuServicos.add(menuServicosMinhasSolicitacoes);
         menuServicosMinhasSolicitacoes.addActionListener((e) -> {
-                usuario.verMinhasSolicitacoes(this);
+                Comandante.verMinhasSolicitacoes(this);
         });
         //Item Nova Solicitacao
         menuServicos.add(menuServicosSolicitar);
@@ -335,7 +336,7 @@ public final class JanelaTodasAsSolicitacoes implements Janela {
         painelUsuario.add(btAtualizar);
         
         btAtualizar.addActionListener((e) -> {
-            usuario.verSolicitacoes(this);
+            Comandante.verSolicitacoes(this);
         });
         
         

@@ -76,9 +76,9 @@ public class JanelaCadastrarEmbarcacoes implements Janela {
         painelEsqForm.add(lbNumero);
         painelEsqForm.add(tfNumero);
 
-        tfId.addKeyListener(usuario.pesquisaDinamicaEmbarcacoes(this));
-        tfNome.addKeyListener(usuario.pesquisaDinamicaEmbarcacoes(this));
-        tfNumero.addKeyListener(usuario.pesquisaDinamicaEmbarcacoes(this));
+        tfId.addKeyListener(Comandante.pesquisaDinamicaEmbarcacoes(this));
+        tfNome.addKeyListener(Comandante.pesquisaDinamicaEmbarcacoes(this));
+        tfNumero.addKeyListener(Comandante.pesquisaDinamicaEmbarcacoes(this));
         tfNome.addKeyListener(JanelaSolicitar.listener(tfNome, 40));
         tfNumero.addKeyListener(JanelaSolicitar.dataListener(tfNumero));
 

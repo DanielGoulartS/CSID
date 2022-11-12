@@ -19,7 +19,7 @@ public class Connection {
 
         try {
             //URL da base de dados
-            String url = "jdbc:mysql://localhost:3306/csid";
+            String url = "jdbc:mysql://localhost:3306/csid?useTimezone=true&serverTimezone=UTC";
             //Se mão estiver conectado, conecte
             if (this.connection == null || !this.connection.isValid(10)) {
                 this.connection = DriverManager.getConnection(url, "root", "");

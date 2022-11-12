@@ -120,17 +120,17 @@ public class JanelaCadastrarPortos implements Janela {
         painelEsqForm.add(lbPais);
         painelEsqForm.add(tfPais);
 
-        tfId.addKeyListener(usuario.pesquisaDinamicaPortos(this));
-        tfNome.addKeyListener(usuario.pesquisaDinamicaPortos(this));
-        tfDdi.addKeyListener(usuario.pesquisaDinamicaPortos(this));
-        tfDdd.addKeyListener(usuario.pesquisaDinamicaPortos(this));
-        tfTelefone.addKeyListener(usuario.pesquisaDinamicaPortos(this));
-        tfEmail.addKeyListener(usuario.pesquisaDinamicaPortos(this));
-        tfRua.addKeyListener(usuario.pesquisaDinamicaPortos(this));
-        tfNumero.addKeyListener(usuario.pesquisaDinamicaPortos(this));
-        tfCidade.addKeyListener(usuario.pesquisaDinamicaPortos(this));
-        tfEstado.addKeyListener(usuario.pesquisaDinamicaPortos(this));
-        tfPais.addKeyListener(usuario.pesquisaDinamicaPortos(this));
+        tfId.addKeyListener(Comandante.pesquisaDinamicaPortos(this));
+        tfNome.addKeyListener(Comandante.pesquisaDinamicaPortos(this));
+        tfDdi.addKeyListener(Comandante.pesquisaDinamicaPortos(this));
+        tfDdd.addKeyListener(Comandante.pesquisaDinamicaPortos(this));
+        tfTelefone.addKeyListener(Comandante.pesquisaDinamicaPortos(this));
+        tfEmail.addKeyListener(Comandante.pesquisaDinamicaPortos(this));
+        tfRua.addKeyListener(Comandante.pesquisaDinamicaPortos(this));
+        tfNumero.addKeyListener(Comandante.pesquisaDinamicaPortos(this));
+        tfCidade.addKeyListener(Comandante.pesquisaDinamicaPortos(this));
+        tfEstado.addKeyListener(Comandante.pesquisaDinamicaPortos(this));
+        tfPais.addKeyListener(Comandante.pesquisaDinamicaPortos(this));
         
         tfNome.addKeyListener(JanelaSolicitar.listener(tfNome, 40));
         tfDdi.addKeyListener(JanelaSolicitar.dataListener(tfDdi));

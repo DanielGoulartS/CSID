@@ -198,11 +198,11 @@ public final class JanelaCadastrarUsuarios implements Janela {
         
         
         //Funcionalidades
-        tfId.addKeyListener(usuario.pesquisaDinamicaUsuarios(this));
-        tfUsuario.addKeyListener(usuario.pesquisaDinamicaUsuarios(this));
-        tfNome.addKeyListener(usuario.pesquisaDinamicaUsuarios(this));
-        tfSobrenome.addKeyListener(usuario.pesquisaDinamicaUsuarios(this));
-        tfEmail.addKeyListener(usuario.pesquisaDinamicaUsuarios(this));
+        tfId.addKeyListener(Comandante.pesquisaDinamicaUsuarios(this));
+        tfUsuario.addKeyListener(Comandante.pesquisaDinamicaUsuarios(this));
+        tfNome.addKeyListener(Comandante.pesquisaDinamicaUsuarios(this));
+        tfSobrenome.addKeyListener(Comandante.pesquisaDinamicaUsuarios(this));
+        tfEmail.addKeyListener(Comandante.pesquisaDinamicaUsuarios(this));
         
         //Painel de pesquisa
         painelEsquerdo.add(painelEsquerdo1, BorderLayout.CENTER);
@@ -217,7 +217,6 @@ public final class JanelaCadastrarUsuarios implements Janela {
         return true;
     }
 
-    
     @Override
     public boolean exibirInterfaceTecnico() {
         exibirInterfaceComandante();
